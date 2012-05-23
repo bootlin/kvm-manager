@@ -509,7 +509,7 @@ encrypt_and_send () {
 	output=$1.gpg
 
 	$GPG --encrypt $BACKUP_CRYPT_OPTIONS $1
-	$SCP -q $output ${BACKUP_IP}:${BACKUP_DIR}/
+	$SCP -P $BACKUP_PORT -q $output ${BACKUP_IP}:${BACKUP_DIR}/
         $RM -f $output
 }
 	
