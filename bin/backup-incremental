@@ -1,0 +1,10 @@
+#!/bin/sh
+# Usage: backup-incremental <machine>
+
+machine=$1
+. /lib/lsb/init-functions
+. /etc/default/kvm-manager
+. /etc/kvm-manager/guests/$machine
+. $KVM_MANAGER_ROOT/share/common.sh
+
+backup_incremental

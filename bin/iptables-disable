@@ -1,0 +1,15 @@
+#!/bin/sh
+
+IPT=/sbin/iptables
+
+# Remove any existing rules from chains, clear their counters, and set default policies 
+$IPT -F
+$IPT -X
+$IPT --zero
+$IPT --flush FORWARD
+$IPT -t nat --flush
+
+# Drop everything by default
+$IPT --policy INPUT ACCEPT
+$IPT --policy OUTPUT ACCEPT
+$IPT --policy FORWARD ACCEPT

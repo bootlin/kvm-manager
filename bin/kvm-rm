@@ -1,0 +1,5 @@
+#!/bin/sh
+#Dummy script before running the real rm script
+#/bin/mv $1 $1.remove-me
+#echo "Will remove $1"
+/bin/rm -f $1

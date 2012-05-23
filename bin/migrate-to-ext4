@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Usage: migrate to ext4 <image file>
+
+# Caution: stop the corresponding virtual machines first!
+
+
+file=$1
+newfile=$1.new
+
+# Create the new image with the right size
+size=`/bin/ls -l $file | /usr/bin/awk '{ print $5 }'`
+echo "Creating new image... (size: $size)"
+/usr/bin/qemu-img create $newfile $size > /dev/null
+
+# Mount the old image
+/bin/mkdir -p mntorig
+/bin/mount -o loop $file mntorig
+
+# Format and mount the new image
+echo "Creating the new filesystem..."
+/sbin/mkfs.ext4 -m 0 -F $newfile > /dev/null
+/bin/mkdir -p mntnew
+/bin/mount -o loop $newfile mntnew
+
+# Copy the contents
+echo "Copying the contents..."
+/usr/bin/rsync -a mntorig/ mntnew/
+/bin/umount mntorig
+/bin/umount mntnew
+/bin/rmdir mntorig
+/bin/rmdir mntnew
+/bin/chown kvm.kvm $newfile
+echo "Done."

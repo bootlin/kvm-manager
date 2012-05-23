@@ -1,0 +1,3 @@
+1.1  : Redid xauth call from C code. It should now be (a lot) safer. 
+1.1.1: Fixed stupid compilation bug.
+2.0  : New syntax: getopt-style options. Additional command-line options.

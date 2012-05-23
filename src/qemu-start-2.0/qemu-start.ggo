@@ -1,0 +1,12 @@
+package "qemu-start"
+version "2.0"
+purpose "Start QEMU safely and with networking"
+#usage is not available in the Edge version of gengetopt. See hack in main().
+#usage "qemu-start [OPTIONS] -- [OPTIONS for QEMU]"
+option "tapnr" t "Universal TUN/TAP device number (e.g. 0 for tap0)" typestr="tap-dev-number" int default="0" optional
+option "vlan" v "Virtual LAN (VLAN) number (e.g. 0)" typestr="vlan#" int default="0" optional
+option "macaddr" m "MAC address of guest emulated NIC" typestr="mac-address" string optional
+option "nic-model" n "Model of guest emulated NIC" typestr="nic-model" string optional
+option "system" s "Type of system to emulate (e.g. PPC), calls qemu-system-<system>.  If left blank /usr/bin/qemu is called." typestr="architecture" string optional
+option "window-left" x "Left position of SDL screen (e.g. for use with -no-frame)" typestr="X" int optional
+option "window-top" y "Top position of SDL screen (e.g. for use with -no-frame)" typestr="Y" int optional

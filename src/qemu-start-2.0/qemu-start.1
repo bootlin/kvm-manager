@@ -1,0 +1,123 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH QEMU-START 1 "April 9, 2008"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+qemu\-start \- start qemu safely with tap devices
+.SH SYNOPSIS
+.B qemu\-start
+.I [OPTIONS] -- QEMUOPTS...
+.SH DESCRIPTION
+This manual page documents the
+.B qemu-start
+command.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBqemu-start\fP is a small program that helps you start qemu in a safe and
+useful way. It presumes all qemu instances will run under the same
+user-id 
+.RI ( qemu ). 
+A group
+.I emulator
+is created; only members of this group are allowed to start qemu. Qemu is
+started with one ethernet interface, which is bound through a tap
+device. Xauthority data is
+automatically transferred if the DISPLAY variable is set.
+.SH PARAMETERS
+The parameter
+.B --tapnr TAPDEVNR
+is the number of the tap\-device. Use 0 for tap0, etc. See below how you
+safely can define tap devices.
+.PP
+The parameter 
+.B --vlan VLAN
+is the VLAN you want to add this adapter to. Usually,
+using 0 will do.
+.PP
+The parameter
+.B --nic-model NICMODEL
+is the model type of the emulated nic presented to the guest os.  Use
+qemu -net nic,model=? for information on allowed values for this
+parameter
+.PP
+The parameter
+.B --macaddr MACADDRESS
+sets the MAC address for the emulated nic presented to guest os.
+.PP
+The parameter
+.B --system SYSTEM
+is the system you want to emulate. Leave out if you want to use your current
+architecture; in this case,
+.B /usr/bin/qemu
+will be called. If you want to simulate some other type of system, specify
+it here; in that case, 
+.B /usr/bin/qemu-system-SYSTEM
+will be called.
+.PP
+The parameter
+.B --window-left X
+sets the left-most column of the window (in pixels) to X.
+.PP
+The parameter
+.B --window-top Y
+sets the top-most row of the window (in pixels) to Y.
+.PP
+All options and parameters after -- are fed to qemu.
+.SH TAP DEVICE (DEBIAN SPECIFIC)
+You must create a tap device for use by qemu. The nicest way of doing this
+is combining it with a bridge. This section describes how you can do this.
+.PP
+Make sure you have the packages
+.I bridge-utils
+and 
+.I uml-utilities
+installed.
+.PP
+Edit
+.BR /etc/network/interfaces .
+Find the section where your current ethernet interface is described; we will
+assume here it is
+.IR eth0 . 
+Change its name to
+.I br0
+and add the following line to the stanza:
+.PP
+.I "    " bridge_ports eth0 tap0
+.PP
+You can add more
+.I tap
+devices later if you want.
+Now add a stanza for the new tap interface:
+.PP
+.I auto tap0
+.br
+.I iface tap0 inet manual
+.br
+.I "     " tunctl_user qemu
+.PP
+Finally, restart your netwerk by issuing a command
+.B /etc/init.d/networking restart
+
+
+.SH SEE ALSO
+.BR qemu (1)
+.br
+.SH AUTHOR
+qemu-start was written by Frodo Looijaard <frodo@frodo.looijaard.name>.
+.PP
+This manual page was written by Frodo Looijaard <frodo@frodo.looijaard.name>

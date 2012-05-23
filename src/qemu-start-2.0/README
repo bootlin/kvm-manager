@@ -1,0 +1,34 @@
+qemu-start is a small program that helps you start qemu in a safe and
+useful way. It has the following features:
+  * Start qemu as a non-privileged user
+  * Run qemu as a non-root user
+  * Propegates xauth information
+  * Only selected users can start qemu
+  * Existing tap network devices can be bound
+
+It presumes all qemu instances will run under the same user-id (qemu). A group 
+emulator is created; only members of this group are allowed to start qemu. Qemu
+is started with one ethernet interface, which is bound through a tap device.
+Xauthority data is automatically transferred if the DISPLAY variable is set.
+
+
+USING THIS PACKAGE
+==================
+
+Add any users that may start qemu to the emulator group.
+Create a tap-device, like described in the manual page or in some other
+way.
+Now you are ready to call qemu-start.
+If you have a DISPLAY variable set, the xauth key will be imported into
+the .Xauthority file of the qemu user. That means it will be able to
+display qemu on your X display.
+
+
+NON-DEBIAN SYSTEMS
+==================
+
+This package is somewhat Debian-centric. It might still be useful if you
+use some other distribution, though. You will have to create a
+group emulator, and a user qemu yourself. The qemu user does not need a 
+password, and /bin/false is a good shell. Afterwards, compile the package
+by calling `make' and install it by calling `make install'.

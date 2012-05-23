@@ -1,0 +1,7 @@
+#!/bin/sh
+# Usage: encrypt-and-send file
+
+. /etc/default/kvm-manager
+. $KVM_MANAGER_ROOT/share/common.sh
+
+encrypt_and_send $1

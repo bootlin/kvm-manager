@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+# Reverses a list of words passed as the first argument
+
+import sys
+
+l = sys.argv[1].split()
+l.reverse()
+
+for i in l:
+        sys.stdout.write(i + ' ')
+
+sys.stdout.write('\n')

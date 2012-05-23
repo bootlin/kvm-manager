@@ -1,0 +1,9 @@
+#!/bin/sh
+# Usage: backup-incremental-all
+
+. /etc/default/kvm-manager
+
+for m in $ENABLED_MACHINES base
+do
+	$KVM_MANAGER_ROOT/bin/backup-full $m 
+done

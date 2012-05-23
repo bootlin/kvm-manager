@@ -1,0 +1,2 @@
+. /etc/default/kvm-manager
+$KVM_MANAGER_ROOT/bin/kvm-info.py

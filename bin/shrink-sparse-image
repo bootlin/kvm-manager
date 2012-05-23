@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Usage: shrink-sparse-image <image file>
+# Shrinks an image by migrating its contents to a freshly
+# created one. This discards image blocks that are no
+# longer in use.
+
+# Caution: stop the corresponding virtual machines first!
+
+# Caution: do a full back after running this:
+# Example: /usr/local/kvm-manager/bin/backup-full www
+
+file=$1
+newfile=$1.new
+
+# Create the new image with the right size
+size=`/bin/ls -l $file | /usr/bin/awk '{ print $5 }'`
+echo "Creating new image..."
+/usr/bin/qemu-img create $newfile $size > /dev/null
+
+# Mount the old image, find its filesystem
+/bin/mkdir -p mntorig
+/bin/mount -o loop $file mntorig
+fstype=`/bin/mount | /bin/grep $file | /usr/bin/awk '{ print $5 }'` 
+echo -n "Detected FS type: "
+echo $fstype
+
+# Format and mount the new image
+echo "Creating the new filesystem..."
+/sbin/mkfs.$fstype -F $newfile > /dev/null
+/bin/mkdir -p mntnew
+/bin/mount -o loop $newfile mntnew
+
+# Copy the contents
+echo "Copying the contents..."
+/usr/bin/rsync -a --sparse mntorig/ mntnew/
+/bin/umount mntorig
+/bin/umount mntnew
+/bin/rmdir mntorig
+/bin/rmdir mntnew
+echo "Done."

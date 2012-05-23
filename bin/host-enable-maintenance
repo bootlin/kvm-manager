@@ -1,0 +1,5 @@
+#!/bin/sh
+. /etc/default/kvm-manager
+. $KVM_MANAGER_ROOT/share/common.sh
+enable_host_tcp_output_connections http
+enable_host_udp_output_connections ntp
