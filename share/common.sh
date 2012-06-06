@@ -9,10 +9,11 @@ GPG=/usr/bin/gpg
 SCP=/usr/bin/scp
 RM=/bin/rm
 EXTIP=`/sbin/ifconfig $EXTIF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
+VARRUN=/var/run/kvm-manager
 
 # Settings deduced from guest settings ##########################
 
-GUEST_MAINTENANCE_FLAG=/var/run/kvm/${GUEST_NAME}_in_maintenance_mode
+GUEST_MAINTENANCE_FLAG=$VARRUN/${GUEST_NAME}_in_maintenance_mode
 
 # Create and setup the guest tap interface ######################
 
@@ -336,7 +337,7 @@ maintenance_status_off () {
 }
 
 maintenance_status_on () {
- 	/bin/mkdir -p /var/run/kvm-manager
+ 	/bin/mkdir -p $VARRUN
 	/usr/bin/touch $GUEST_MAINTENANCE_FLAG
 }
 
