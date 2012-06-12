@@ -509,9 +509,12 @@ encrypt_and_send () {
 	input=$1
 	output=$1.gpg
 
-	$GPG --encrypt $BACKUP_CRYPT_OPTIONS $1
-	$SCP -P $BACKUP_PORT -q $output ${BACKUP_IP}:${BACKUP_DIR}/
-        $RM -f $output
+	if [ "$BACKUP_IP" != "" ]
+	then
+		$GPG --encrypt $BACKUP_CRYPT_OPTIONS $1
+		$SCP -P $BACKUP_PORT -q $output ${BACKUP_IP}:${BACKUP_DIR}/
+        	$RM -f $output
+	fi
 }
 	
 # Clean backup files ############################################
