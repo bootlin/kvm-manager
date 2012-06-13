@@ -624,7 +624,7 @@ __backup_full () {
 	suffix=-full-`date +%F`
 	guest_backup_full=$guest_backup$suffix
 	/bin/cp $guest_disk $guest_backup_full
-	$LN -sf `basename $guest_backup_full` `basename $guest_backup`-full-latest
+	$LN -sf `basename $guest_backup_full` `basename $guest_backup`-latest
 	encrypt_and_send $guest_backup_full
 
 	# Write the last 2 full backups to a file
