@@ -624,7 +624,7 @@ __backup_full () {
 	suffix=-full-`date +%F`
 	guest_backup_full=$guest_backup$suffix
 	/bin/cp $guest_disk $guest_backup_full
-	$LN -s $guest_backup_full ${guest_backup}-full-latest
+	$LN -s $guest_backup_full `basename $guest_backup`-full-latest
 	encrypt_and_send $guest_backup_full
 
 	# Write the last 2 full backups to a file
@@ -678,7 +678,7 @@ __backup_incremental () {
 		# Don't use -9 compression, otherwise, you will use too much RAM
 		# and freeze the host
 		/usr/bin/lzma --force $batch
-		$LN -s ${batch}.lzma ${backup_prefix}-incremental-latest.lzma
+		$LN -s ${batch}.lzma `basename $backup_prefix`-incremental-latest.lzma
 		encrypt_and_send ${batch}.lzma 
 	else 
 		# If there is no full backup yet (new machine), just create one
