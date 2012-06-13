@@ -1,15 +1,14 @@
 #!/bin/sh
 . /lib/lsb/init-functions
 . /etc/default/kvm-manager
-. $KVM_MANAGER_ROOT/share/common.sh
-
-guest=$1
-defs=/etc/kvm-manager/guests/$guest
 
 usage () {
         echo "Usage: $0 vm-name {start|stop|reload-iptables|enable-maintenance|disable-maintenance|restart}" >&2
         exit 3
 }
+
+guest=$1
+defs=/etc/kvm-manager/guests/$guest
 
 if [ -f "$defs" ]
 then
@@ -20,4 +19,6 @@ else
  	usage
 fi
 	. 
+. $KVM_MANAGER_ROOT/share/common.sh
+
 rc_main $2 $3
