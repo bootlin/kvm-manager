@@ -563,7 +563,7 @@ __remove_incremental_backup () {
 	if [ $multiple -gt 16 ] || [ "$status" = "false" ]
 	then
 		date=`date -d "-$i days" +%F`
-		file=`__backup_incremental_name $prefix $date`.lzma
+		file=`__backup_incremental_name $prefix $date`.xz
 
 		if [ -f $file ]
 		then
@@ -677,9 +677,9 @@ __backup_incremental () {
 		# Compress the output
 		# Don't use -9 compression, otherwise, you will use too much RAM
 		# and freeze the host
-		/usr/bin/lzma --force $batch
-		$LN -sf `basename ${batch}.lzma` `basename $backup_prefix`-incremental-latest.lzma
-		encrypt_and_send ${batch}.lzma 
+		/usr/bin/xz -9 --force $batch
+		$LN -sf `basename ${batch}.xz` `basename $backup_prefix`-incremental-latest.xz
+		encrypt_and_send ${batch}.xz 
 	else 
 		# If there is no full backup yet (new machine), just create one
 		# No need to make an incremental backup for the moment
