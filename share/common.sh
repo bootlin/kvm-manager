@@ -7,7 +7,6 @@
 IPT=/sbin/iptables
 GPG=/usr/bin/gpg
 SCP=/usr/bin/scp
-LN=/bin/ln
 RM=/bin/rm
 EXTIP=`/sbin/ifconfig $EXTIF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 VARRUN=/var/run/kvm-manager
@@ -624,7 +623,6 @@ __backup_full () {
 	suffix=-full-`date +%F`
 	guest_backup_full=$guest_backup$suffix
 	/bin/cp $guest_disk $guest_backup_full
-	$LN -sf `basename $guest_backup_full` `basename $guest_backup`-latest
 	encrypt_and_send $guest_backup_full
 
 	# Write the last 2 full backups to a file
@@ -678,7 +676,6 @@ __backup_incremental () {
 		# Don't use -9 compression, otherwise, you will use too much RAM
 		# and freeze the host
 		/usr/bin/xz -9 --force $batch
-		$LN -sf `basename ${batch}.xz` `basename $backup_prefix`-incremental-latest.xz
 		encrypt_and_send ${batch}.xz 
 	else 
 		# If there is no full backup yet (new machine), just create one
