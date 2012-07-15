@@ -1,6 +1,7 @@
 #!/bin/sh
 # Backup the host files
 . /etc/default/kvm-manager
-backup=$LOCAL_BACKUP_DIR/host-`date +%F`.tar.xz
-tar --exclude-from /etc/kvm-manager/host-excludes -cf - / | /usr/bin/xz -9 > $backup
-chown -R backups.backups $backup
+backup=$BACKUP_DIR/host-`date +%F`.tar.xz
+/bin/mkdir -p $LOCAL_BACKUP_DIR
+/bin/tar --exclude-from /etc/kvm-manager/host-excludes -cf - / | /usr/bin/xz -9 > $backup
+/bin/chown -R backups.backups $backup
