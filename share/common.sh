@@ -56,9 +56,22 @@ launch_kvm () {
 
 	/bin/sync
 
+	# Test Ubuntu release
+
+	. /etc/lsb-release
+	compare_version=`echo "$DISTRIB_RELEASE > 10.04" | bc`
+
+	if [ $compare_version ]
+	then
+		bootorder=""
+	else
+		bootorder=",boot=on"
+	fi
+
+
 	# Start VM
 
-	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -nographic -drive file=$GUEST_BOOT,if=virtio -drive file=$GUEST_ROOT,if=virtio -drive file=$GUEST_DATA,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
+	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -nographic -drive file=$GUEST_BOOT,if=virtio$bootorder -drive file=$GUEST_ROOT,if=virtio -drive file=$GUEST_DATA,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
 }
 
 # Shutdown guest ################################################
