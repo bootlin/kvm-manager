@@ -57,17 +57,16 @@ launch_kvm () {
 	/bin/sync
 
 	# Test Ubuntu release
+        # boot=on mandatory in boot drive definitions on 10.04
 
-	. /etc/lsb-release
-	compare_version=`echo "$DISTRIB_RELEASE > 10.04" | bc`
+        . /etc/lsb-release
 
-	if [ $compare_version ]
-	then
-		bootorder=""
-	else
-		bootorder=",boot=on"
-	fi
-
+        if [ "$DISTRIB_RELEASE" = "10.04" ]
+        then
+                bootorder=",boot=on"
+        else
+                bootorder=""
+        fi
 
 	# Start VM
 
