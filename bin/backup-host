@@ -4,4 +4,3 @@
 backup=$LOCAL_BACKUP_DIR/host-`date +%F`.tar.xz
 tar --exclude-from /etc/kvm-manager/host-excludes -cf - / | /usr/bin/xz -9 > $backup
 chown -R backups.backups $backup
-sudo -H -u backups $KVM_MANAGER_ROOT/bin/encrypt-and-send $backup
