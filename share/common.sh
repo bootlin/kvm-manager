@@ -502,21 +502,6 @@ guest_info () {
 	eval echo $var 
 }
 
-# Encrypt and send backup files #################################
-
-encrypt_and_send () {
-
-	input=$1
-	output=$1.gpg
-
-	if [ "$BACKUP_IP" != "" ]
-	then
-		$GPG --encrypt $BACKUP_CRYPT_OPTIONS $1
-		$SCP -P $BACKUP_PORT -q $output ${BACKUP_IP}:${BACKUP_DIR}/
-        	$RM -f $output
-	fi
-}
-	
 # Clean backup files ############################################
 
 is_multiple_of () {
@@ -623,7 +608,6 @@ __backup_full () {
 	suffix=-full-`date +%F`
 	guest_backup_full=$guest_backup$suffix
 	/bin/cp $guest_disk $guest_backup_full
-	encrypt_and_send $guest_backup_full
 
 	# Write the last 2 full backups to a file
 	# That's useful for a machine replicating the backups with rsync:
@@ -676,7 +660,6 @@ __backup_incremental () {
 		# Don't use -9 compression, otherwise, you will use too much RAM
 		# and freeze the host
 		/usr/bin/xz -9 --force $batch
-		encrypt_and_send ${batch}.xz 
 	else 
 		# If there is no full backup yet (new machine), just create one
 		# No need to make an incremental backup for the moment
