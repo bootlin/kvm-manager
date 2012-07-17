@@ -100,7 +100,7 @@ def get_interface_tx_info(interface):
 # Get guest maintenance status (safe or unsafe in maintenance mode)
 
 def machine_is_safe(machine):
-	if os.path.exists('/var/run/kvm/' + machine + '_in_maintenance_mode'):
+	if os.path.exists('/var/run/kvm-manager/' + machine + '_in_maintenance_mode'):
 		return 'no'
 	else:
 		return 'yes'
