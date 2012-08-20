@@ -192,7 +192,7 @@ __outside_port_forwarding () {
 	ACTION=$1
 	PROTOCOL=$2
 	PORTS=$3
-	$IPT -t nat -$ACTION PREROUTING -p $PROTOCOL -d $EXT_PUBLIC_IP -m multiport --dport $PORTS -j DNAT --to-destination $GUEST_IP
+	$IPT -t nat -$ACTION PREROUTING -p $PROTOCOL -d $GUEST_PUBLIC_IP -m multiport --dport $PORTS -j DNAT --to-destination $GUEST_IP
 	$IPT -$ACTION FORWARD -i $EXTIF -o $GUEST_IF -p $PROTOCOL -d $GUEST_IP -m multiport --dport $PORTS -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 	$IPT -$ACTION FORWARD -s $GUEST_IP -i $GUEST_IF -o $EXTIF -p $PROTOCOL -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
