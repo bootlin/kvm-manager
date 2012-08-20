@@ -9,6 +9,7 @@ GPG=/usr/bin/gpg
 SCP=/usr/bin/scp
 RM=/bin/rm
 EXTIP=`/sbin/ifconfig $EXTIF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
+GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 VARRUN=/var/run/kvm-manager
 
 # Settings deduced from guest settings ##########################
@@ -139,7 +140,7 @@ guest_connections () {
         # Forward guest requests to the outside
 	$IPT -$ACTION FORWARD -o $EXTIF -s $GUEST_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 	# Forward outside packets from existing connections to the guest
-	$IPT -$ACTION FORWARD -i $EXTIF -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
+	$IPT -$ACTION FORWARD -i $EXTIF -d $GUEST_PUBLIC_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 	# Allow guest connections to the host (mainly for DNS)
 	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
@@ -191,7 +192,7 @@ __outside_port_forwarding () {
 	ACTION=$1
 	PROTOCOL=$2
 	PORTS=$3
-	$IPT -t nat -$ACTION PREROUTING -p $PROTOCOL -d $EXTIP -m multiport --dport $PORTS -j DNAT --to-destination $GUEST_IP
+	$IPT -t nat -$ACTION PREROUTING -p $PROTOCOL -d $EXT_PUBLIC_IP -m multiport --dport $PORTS -j DNAT --to-destination $GUEST_IP
 	$IPT -$ACTION FORWARD -i $EXTIF -o $GUEST_IF -p $PROTOCOL -d $GUEST_IP -m multiport --dport $PORTS -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 	$IPT -$ACTION FORWARD -s $GUEST_IP -i $GUEST_IF -o $EXTIF -p $PROTOCOL -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
