@@ -293,31 +293,12 @@ disable_ssh_to_guest () {
 
 # Enable / disable host outgoing connections #################################
 
-host_output_connections () {
-	ACTION=$1
-	PROTOCOL=$2
-	PORTS=$3
-	$IPT -$ACTION OUTPUT -p $PROTOCOL -o $EXTIF -s $EXTIP -m multiport --dports $PORTS -m state --state NEW -j ACCEPT
+enable_any_host_connections () {
+	$IPT -A OUTPUT -m state --state NEW -j ACCEPT
 }
 
-enable_host_tcp_output_connections () {
-	PORTS=$1
-	host_output_connections A tcp $PORTS
-}
-
-disable_host_tcp_output_connections () {
-	PORTS=$1
-	host_output_connections D tcp $PORTS
-}
-
-enable_host_udp_output_connections () {
-	PORTS=$1
-	host_output_connections A udp $PORTS
-}
-
-disable_host_udp_output_connections () {
-	PORTS=$1
-	host_output_connections D udp $PORTS
+disable_any_host_connections () {
+	$IPT -D OUTPUT -m state --state NEW -j ACCEPT
 }
 
 # Check guest running status ####################################

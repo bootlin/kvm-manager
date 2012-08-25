@@ -1,5 +1,4 @@
 #!/bin/sh
 . /etc/default/kvm-manager
 . $KVM_MANAGER_ROOT/share/common.sh
-disable_host_tcp_output_connections http
-disable_host_udp_output_connections ntp
+disable_any_host_connections
