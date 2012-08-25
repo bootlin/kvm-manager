@@ -118,10 +118,10 @@ EOF
 
 guest_dns () {
 	ACTION=$1
-	iptables -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
-	iptables -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
-	iptables -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT
 }
 
 enable_guest_dns () {
