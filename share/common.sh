@@ -139,7 +139,7 @@ guest_connections () {
         # Forward guest requests to the outside
 	$IPT -$ACTION FORWARD -o $EXTIF -s $GUEST_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 	# Forward outside packets from existing connections to the guest
-	$IPT -$ACTION FORWARD -i $EXTIF -d $GUEST_PUBLIC_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
+	$IPT -$ACTION FORWARD -i $EXTIF -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 	# Allow guest connections to the host (mainly for DNS)
 	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
