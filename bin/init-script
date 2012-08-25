@@ -71,7 +71,6 @@ case "$1" in
 	for m in $ENABLED_MACHINES
 	do
 		$KVM_MANAGER $m enable-maintenance
-		$KVM_MANAGER_ROOT/bin/host-enable-maintenance
 	done
 	$KVM_MANAGER_ROOT/bin/kvm-info
 	exit 0
@@ -80,7 +79,6 @@ case "$1" in
 	for m in $ENABLED_MACHINES
 	do
 		$KVM_MANAGER $m disable-maintenance
-		$KVM_MANAGER_ROOT/bin/host-disable-maintenance
 	done
 	$KVM_MANAGER_ROOT/bin/kvm-info
 	exit 0
