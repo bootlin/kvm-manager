@@ -1,0 +1,7 @@
+#!/bin/sh
+# Allows to show iptables arguments before running them
+# Useful to catch errors
+. /etc/default/kvm-manager
+. $KVM_MANAGER_ROOT/share/common.sh
+echo "iptables $*"
+/sbin/iptables $*
