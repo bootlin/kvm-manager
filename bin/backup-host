@@ -2,5 +2,5 @@
 # Backup the host files
 . /etc/default/kvm-manager
 backup=$BACKUP_DIR/host-`date +%F`.tar.xz
-/usr/bin/nice -n 19 /bin/tar --exclude-from /etc/kvm-manager/host-excludes -cf - / | /usr/bin/xz -9 > $backup
+/usr/bin/ionice -c 3 /bin/tar --exclude-from /etc/kvm-manager/host-excludes -cf - / | /usr/bin/xz -9 > $backup
 /bin/chown -R backups.backups $backup

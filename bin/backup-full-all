@@ -5,5 +5,5 @@
 
 for m in $ENABLED_MACHINES base
 do
-	/usr/bin/nice -n 19 $KVM_MANAGER_ROOT/bin/backup-full $m 
+	/usr/bin/ionice -c 3 $KVM_MANAGER_ROOT/bin/backup-full $m 
 done
