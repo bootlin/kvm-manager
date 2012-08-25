@@ -4,7 +4,6 @@
 
 . /etc/default/kvm-manager
 
-IPT=/sbin/iptables
 GPG=/usr/bin/gpg
 SCP=/usr/bin/scp
 RM=/bin/rm
