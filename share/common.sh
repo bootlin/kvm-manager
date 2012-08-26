@@ -70,7 +70,7 @@ launch_kvm () {
 
 	# Start VM
 
-	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -nographic -drive file=$GUEST_BOOT,if=virtio$bootorder -drive file=$GUEST_ROOT,if=virtio -drive file=$GUEST_DATA,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
+	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -nographic -drive file=$GUEST_BOOT,if=virtio$bootorder -drive file=$GUEST_ROOT,if=virtio -drive file=$GUEST_DATA,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
 }
 
 # Shutdown guest ################################################
