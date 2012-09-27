@@ -173,7 +173,7 @@ disable_connection_to_proxy () {
 
 __guest_smtp () {
 	ACTION=$1
-	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP --dport 587 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT 
+	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT 
 	$IPT -$ACTION FORWARD -p tcp -s $SMTP_IP -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT 
 }
 
