@@ -3,7 +3,7 @@
 
 . /etc/default/kvm-manager
 
-for m in $ENABLED_MACHINES base
+for m in $ENABLED_MACHINES
 do
 	/usr/bin/ionice -c 3 $KVM_MANAGER_ROOT/bin/backup-full $m 
 done
