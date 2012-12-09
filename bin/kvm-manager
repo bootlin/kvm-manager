@@ -18,7 +18,7 @@ else
 	echo "$defs should be a Virtual Machine definition file"
  	usage
 fi
-	. 
+
 . $KVM_MANAGER_ROOT/share/common.sh
 
 rc_main $2 $3
