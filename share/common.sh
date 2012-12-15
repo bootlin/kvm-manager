@@ -278,8 +278,10 @@ disable_ping_to_guest () {
 
 guest_ping () {
 	ACTION=$1
-	$IPT -$ACTION OUTPUT -p icmp -s $GUEST_IP -j ACCEPT
-	$IPT -$ACTION INPUT -p icmp -d $GUEST_IP -m state --state RELATED,ESTABLISHED -j ACCEPT
+        # Forward guest ping requests to the outside
+        $IPT -$ACTION FORWARD -p icmp -o $EXTIF -s $GUEST_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+        # Forward outside packets from existing connections to the guest
+        $IPT -$ACTION FORWARD -p icmp -i $EXTIF -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 enable_guest_ping () {
