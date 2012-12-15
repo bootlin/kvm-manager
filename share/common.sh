@@ -274,6 +274,22 @@ disable_ping_to_guest () {
         ping_to_guest D
 }
 
+# Enable ping from guest  ####################################################
+
+guest_ping () {
+	ACTION=$1
+	$IPT -$ACTION OUTPUT -p icmp -s $GUEST_IP -j ACCEPT
+	$IPT -$ACTION INPUT -p icmp -d $GUEST_IP -m state --state RELATED,ESTABLISHED -j ACCEPT
+}
+
+enable_guest_ping () {
+        guest_ping A
+}
+
+disable_guest_ping () {
+        guest_ping D
+}
+
 # Enable / disable ssh to guest ##############################################
 
 enable_ssh_to_guest () {
@@ -443,6 +459,11 @@ load_iptables () {
 		enable_guest_dns
 	fi
 
+	if [ "$GUEST_NEED_PING" = "yes" ]
+	then
+		enable_guest_ping
+	fi
+
 	if [ "$GUEST_NEED_SMTP" = "yes" ]
 	then
 		enable_guest_smtp
@@ -470,6 +491,12 @@ remove_iptables () {
 	then
 		disable_guest_dns
 	fi
+
+	if [ "$GUEST_NEED_PING" = "yes" ]
+	then
+		disable_guest_ping
+	fi
+
 
 	if [ "$GUEST_NEED_SMTP" = "yes" ]
 	then
