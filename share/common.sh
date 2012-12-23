@@ -83,12 +83,12 @@ shutdown_guest () {
 	# Otherwise, we may turn off the system without shutting down
 	# other machines in a clean way
 
-	if /bin/ping -c 1 -W 10 $GUEST_IP 2> /dev/null
+	if /bin/ping -c 1 -W 10 $GUEST_IP > /dev/null
 	then
 		# Guest answers to ping
 		# Send it shutdown keys
 
-		nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null <<EOF
+		nc 127.0.0.1 $GUEST_MONITOR_PORT 2> /dev/null <<EOF
 sendkey ctrl-alt-delete
 EOF
 	else
