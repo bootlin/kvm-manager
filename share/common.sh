@@ -393,6 +393,7 @@ stop () {
 			sleep 1
         	else
 			stopped=1
+			break
 		fi
 	done
 
@@ -400,7 +401,6 @@ stop () {
 	then
         	log_failure_msg "Forced to destroy the $GUEST_NAME virtual machine"
                	destroy_guest
-                log_end_msg 0
 	fi
 
         # Remove firewall rules and disable the tap network interface ##
