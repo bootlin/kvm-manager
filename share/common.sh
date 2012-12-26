@@ -78,39 +78,20 @@ launch_kvm () {
 shutdown_guest () {
 
 	# If the machine answers to ping, shut it down in a clean way
-	# Otherwise, kill it.
-	# We do this to stop the virtual machine in bounded time.
-	# Otherwise, we may turn off the system without shutting down
-	# other machines in a clean way
 
 	if /bin/ping -c 1 -W 10 $GUEST_IP > /dev/null
 	then
 		# Guest answers to ping
 		# Send it shutdown keys
 
-		nc 127.0.0.1 $GUEST_MONITOR_PORT 2> /dev/null <<EOF
-sendkey ctrl-alt-delete
-EOF
-	else
-		# Using check_guest_status is a convenient way
-		# to get the PID. We call it again here 
-		# in case this function is not called from the
-		# stop() function.
-
-		check_guest_status
-        	if [ $STATUS ]
-		then
-			/bin/kill -9 $STATUS
-		fi
+		echo "sendkey ctrl-alt-delete" | nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 	fi
 }
 
 # Destroy guest ################################################
 
 destroy_guest () {
-	nc 127.0.0.1 $GUEST_MONITOR_PORT <<EOF
-quit
-EOF
+	echo "quit" | nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 }
 
 # Enable / disable DNS requests from the guest ##################
@@ -394,16 +375,33 @@ stop () {
                 log_failure_msg "No kvm $GUEST_NAME virtual machine was running."
                 log_end_msg 1
                 exit 1
-
         fi
 
-	# If kvm is still alive (guest OS not responding), quit the emulator
+	# If kvm is still alive after 20 s
+        # (guest OS didn't complete shutdown, or isn't responding to ping),
+        # quit the emulator
+	
+	count=0
+	stopped=0
 
-	check_guest_status
-        if [ $STATUS ]
-        then
-                destroy_guest
-        fi
+	while [ "$count" -lt 20 ]
+	do
+		check_guest_status
+        	if [ $STATUS ]
+        	then
+			count=`expr $count + 1`	
+			sleep 1
+        	else
+			stopped=1
+		fi
+	done
+
+	if [ "$stopped" = "0" ]
+	then
+        	log_failure_msg "Forced to destroy the $GUEST_NAME virtual machine"
+               	destroy_guest
+                log_end_msg 0
+	fi
 
         # Remove firewall rules and disable the tap network interface ##
 
