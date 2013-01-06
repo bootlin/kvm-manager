@@ -70,7 +70,7 @@ launch_kvm () {
 
 	# Start VM
 
-	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -nographic -drive file=$GUEST_BOOT,cache=none,if=virtio$bootorder -drive file=$GUEST_ROOT,cache=none,if=virtio -drive file=$GUEST_DATA,cache=none,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
+	nice -$GUEST_PRIO /usr/bin/qemu-start -u kvm-$GUEST_NAME -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -nographic -drive file=$GUEST_BOOT,cache=none,if=virtio$bootorder -drive file=$GUEST_ROOT,cache=none,if=virtio -drive file=$GUEST_DATA,cache=none,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
 }
 
 # Shutdown guest ################################################
@@ -302,7 +302,7 @@ disable_any_host_connections () {
 # Check guest running status ####################################
 
 check_guest_status () {
-	STATUS=`/usr/bin/pgrep -fu kvm "^/usr/bin/kvm .* \-name $GUEST_NAME$"`
+	STATUS=`/usr/bin/pgrep -fu kvm-$GUEST_NAME "^/usr/bin/kvm .* \-name $GUEST_NAME$"`
 }
 
 # Make sure that the partition is not currently mounted ########
@@ -367,6 +367,9 @@ start () {
 
 stop () {
         log_begin_msg "Shutting down the kvm $GUEST_NAME virtual machine"
+
+	# Disable maintenance mode if it is active
+	disable_maintenance
 
         # Check that the virtual machine is actually running
 	check_guest_status

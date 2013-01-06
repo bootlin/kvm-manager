@@ -42,7 +42,6 @@
 #endif
 
 #define QEMU "/usr/bin/kvm"
-#define USER "kvm"
 
 /* Tiny code to open tap/tun device, and hand the fd to kvm.
    Run as root, drops to given user. */
@@ -109,9 +108,9 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get userid data. */
-	userdata = getpwnam(USER);
+	userdata = getpwnam(args_info.user_arg);
 	if (!userdata) {
-		fprintf(stderr, "No user '%s'\n", USER);
+		fprintf(stderr, "No user '%s'\n", args_info.user_arg);
 		exit(1);
 	}
 
@@ -140,6 +139,7 @@ int main(int argc, char *argv[])
 		perror("Setting environment failed");
 		exit(1);
 	}
+
 	if (args_info.window_left_given || args_info.window_top_given) {
 		if (setenv("SDL_VIDEO_WINDOW_POS", topleft, 1)) {
 			perror("Setting top-left environment value failed");
