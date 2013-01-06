@@ -1,0 +1,3 @@
+*.o
+src/qemu-start-2.0/cmdline.*
+src/qemu-start-2.0/qemu-start
