@@ -40,14 +40,14 @@ launch_kvm () {
 
 	
 	# Make sure disk images are not mounted
-        check_disk_image_not_mounted $GUEST_BOOT
-        check_disk_image_not_mounted $GUEST_ROOT
-        check_disk_image_not_mounted $GUEST_DATA
+        check_volume_not_mounted $GUEST_BOOT
+        check_volume_not_mounted $GUEST_ROOT
+        check_volume_not_mounted $GUEST_DATA
 
 	if [ -f "$GUEST_EXTRADISK" ]
 	then
-        	check_disk_image_not_mounted $GUEST_EXTRADISK
-		extradisks="-drive file=$GUEST_EXTRADISK,if=virtio"	
+        	check_volume_not_mounted $GUEST_EXTRADISK
+		extradisks="-drive file=$GUEST_EXTRADISK,cache=none,if=virtio"	
 	fi
 
 	# Sync disks
@@ -70,7 +70,7 @@ launch_kvm () {
 
 	# Start VM
 
-	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -nographic -drive file=$GUEST_BOOT,if=virtio$bootorder -drive file=$GUEST_ROOT,if=virtio -drive file=$GUEST_DATA,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
+	nice -$GUEST_PRIO /usr/bin/qemu-start -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -nographic -drive file=$GUEST_BOOT,cache=none,if=virtio$bootorder -drive file=$GUEST_ROOT,cache=none,if=virtio -drive file=$GUEST_DATA,cache=none,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
 }
 
 # Shutdown guest ################################################
@@ -305,18 +305,20 @@ check_guest_status () {
 	STATUS=`/usr/bin/pgrep -fu kvm "^/usr/bin/kvm .* \-name $GUEST_NAME$"`
 }
 
-# Make sure that the disk image is not currently mounted ########
+# Make sure that the partition is not currently mounted ########
 
-check_disk_image_not_mounted () {
-	file=$1
-	filename=`basename $file`
-        result=`/sbin/losetup -a | /bin/grep $filename`
+check_volume_not_mounted () {
+	device=$1
+	volume_name=`basename $device`
+	dm_volume=`echo $volume_name | sed -n 's/-/--/pg'`
+        result=`/bin/mount | /bin/grep $dm_volume`
 
 	if [ "$result" != "" ]
         then
-                log_failure_msg "Disk image $file is already mounted."
+                log_failure_msg "Volume $device is already mounted."
                 log_failure_msg "Starting the VM will cause data corruption."
-                log_failure_msg "Please unmount it first."
+                log_failure_msg "Please unmount it first:"
+                log_failure_msg "sudo umount /dev/mapper/dm_volume"
                 log_end_msg 1
                 exit 1
         fi
