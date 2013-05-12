@@ -1,0 +1,10 @@
+#!/bin/sh
+# Usage: snapshot vm
+
+machine=$1
+. /lib/lsb/init-functions
+. /etc/default/kvm-manager
+. /etc/kvm-manager/guests/$machine
+. $KVM_MANAGER_ROOT/share/common.sh
+
+snapshot_remove $machine

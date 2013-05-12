@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Returns a list of machines
+# Used by the backup server
+
+. /etc/default/kvm-manager
+echo $ENABLED_MACHINES

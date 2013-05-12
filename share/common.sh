@@ -10,6 +10,8 @@ RM=/bin/rm
 EXTIP=`/sbin/ifconfig $EXTIF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 VARRUN=/var/run/kvm-manager
+LVMLOG=$LOGPATH/lvm.log
+MNT=/mnt/snapshots
 
 # Settings deduced from guest settings ##########################
 
@@ -44,7 +46,9 @@ launch_kvm () {
         check_volume_not_mounted $GUEST_ROOT
         check_volume_not_mounted $GUEST_DATA
 
-	if [ -f "$GUEST_EXTRADISK" ]
+	extradisks=""
+
+	if [ -e "$GUEST_EXTRADISK" ]
 	then
         	check_volume_not_mounted $GUEST_EXTRADISK
 		extradisks="-drive file=$GUEST_EXTRADISK,cache=none,if=virtio"	
@@ -382,14 +386,14 @@ stop () {
                 exit 1
         fi
 
-	# If kvm is still alive after 20 s
+	# If kvm is still alive after 60 s
         # (guest OS didn't complete shutdown, or isn't responding to ping),
         # quit the emulator
 	
 	count=0
 	stopped=0
 
-	while [ "$count" -lt 20 ]
+	while [ "$count" -lt 60 ]
 	do
 		check_guest_status
         	if [ $STATUS ]
@@ -698,6 +702,107 @@ backup_incremental () {
 	__backup_incremental $GUEST_DATA $GUEST_DATA_BACKUP
 }
 
+# Support for VM disk snapshots #######################################
+
+do_snapshot_remove () {
+
+	snapshot=$1
+	mountpoint=$2
+
+	if [ -e "$snapshot" ]
+	then
+		if /bin/mountpoint -q "$mountpoint"
+		then
+			umount $mountpoint
+		fi
+
+		lvremove -f $snapshot > /dev/null
+
+		if [ "$?" != "0" ]
+		then
+			echo `date` "lvremove $snapshot failed" >> $LVMLOG
+		fi
+	fi
+}
+
+__snapshot_create () {
+	volume=$1
+	offset=$2
+	snapshot=${volume}-snapshot
+	snapshot_name=`basename $snapshot`
+	mountpoint=$MNT/$snapshot_name
+	mkdir -p $mountpoint
+	
+	# Destroy any snapshot that would still exist
+	do_snapshot_remove $snapshot $mountpoint
+
+	# Create a new snapshot
+
+	# Using 2G for snapshot size... It's the maximum size
+        # of changes to the original volume during the life of the snapshot 
+	# 2G should be more than enough
+
+	lvcreate -L2G -s -n $snapshot_name $volume > /dev/null
+
+	if [ "$?" != "0" ]
+	then
+		echo `date` "lvcreate $snapshot failed" >> $LVMLOG
+	else
+		if [ "$offset" != "" ]
+		then
+			# Weird... don't manage to mount with ro and offset directly
+			mount -o offset=$offset $snapshot $mountpoint
+			mount -o remount,ro $mountpoint
+		else
+			mount -o ro $snapshot $mountpoint
+		fi
+	
+		if /bin/mountpoint -q $mountpoint
+		then
+			mountpoints="$mountpoints $mountpoint"
+		else
+			echo `date` "mounting $snapshot failed" >> $LVMLOG
+		fi
+	fi
+}
+
+__snapshot_remove () {
+	volume=$1
+	snapshot=${volume}-snapshot
+	snapshot_name=`basename $snapshot`
+	mountpoint=$MNT/$snapshot_name
+
+	do_snapshot_remove $snapshot $mountpoint
+}
+
+snapshot_create () {
+	
+	mountpoints=""
+	__snapshot_create $GUEST_ROOT
+	__snapshot_create $GUEST_DATA
+
+	# Mounting the boot partition with offset 512*63
+	# 63 should be computed by running fdisk -lu on this partition
+	__snapshot_create $GUEST_BOOT 32256
+
+        if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" == "yes" ]
+        then
+		__snapshot_create $GUEST_EXTRADISK
+        fi
+}
+
+snapshot_remove () {
+	
+	__snapshot_remove $GUEST_BOOT
+	__snapshot_remove $GUEST_ROOT
+	__snapshot_remove $GUEST_DATA
+
+        if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" == "yes" ]
+        then
+		__snapshot_remove $GUEST_EXTRADISK
+        fi
+}
+	 
 # Main code for RC scripts ####################################################
 
 rc_main () {
