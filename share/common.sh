@@ -20,7 +20,7 @@ GUEST_MAINTENANCE_FLAG=$VARRUN/${GUEST_NAME}_in_maintenance_mode
 # Create and setup the guest tap interface ######################
 
 create_guest_if () {
-	iface=`/usr/sbin/tunctl -b -u kvm -t $GUEST_IF`
+	iface=`/usr/sbin/tunctl -b -u kvm-${GUEST_NAME} -t $GUEST_IF`
 	/sbin/ifconfig $GUEST_IF $GUEST_GW netmask $GUEST_MASK
 }
 
