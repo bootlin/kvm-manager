@@ -785,7 +785,7 @@ snapshot_create () {
 	# 63 should be computed by running fdisk -lu on this partition
 	__snapshot_create $GUEST_BOOT 32256
 
-        if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" == "yes" ]
+        if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" = "yes" ]
         then
 		__snapshot_create $GUEST_EXTRADISK
         fi
@@ -797,7 +797,7 @@ snapshot_remove () {
 	__snapshot_remove $GUEST_ROOT
 	__snapshot_remove $GUEST_DATA
 
-        if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" == "yes" ]
+        if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" = "yes" ]
         then
 		__snapshot_remove $GUEST_EXTRADISK
         fi
