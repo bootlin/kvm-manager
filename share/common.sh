@@ -88,14 +88,14 @@ shutdown_guest () {
 		# Guest answers to ping
 		# Send it shutdown keys
 
-		echo "sendkey ctrl-alt-delete" | nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
+		echo "sendkey ctrl-alt-delete" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 	fi
 }
 
 # Destroy guest ################################################
 
 destroy_guest () {
-	echo "quit" | nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
+	echo "quit" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 }
 
 # Enable / disable DNS requests from the guest ##################
