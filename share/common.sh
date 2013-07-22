@@ -12,6 +12,7 @@ BASENAME=/usr/bin/basename
 LVREMOVE=/sbin/lvremove
 DMSETUP=/sbin/dmsetup
 UMOUNT=/bin/umount
+SLEEP=/bin/sleep
 
 
 EXTIP=`/sbin/ifconfig $EXTIF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
@@ -37,7 +38,7 @@ destroy_guest_if () {
 	
 	# 3s pause needed to avoid:
 	# TUNSETIFF: Device or resource busy
-	sleep 3
+	$SLEEP 3
 	/usr/sbin/tunctl -d $GUEST_IF > /dev/null
 }
 
@@ -406,7 +407,7 @@ stop () {
         	if [ $STATUS ]
         	then
 			count=`expr $count + 1`	
-			sleep 1
+			$SLEEP 1
         	else
 			stopped=1
 			break
@@ -721,6 +722,7 @@ do_snapshot_remove () {
 		if /bin/mountpoint -q "$mountpoint"
 		then
 			$UMOUNT $mountpoint
+			$SLEEP 10
 		fi
 
 		$LVREMOVE -f $snapshot > /dev/null
