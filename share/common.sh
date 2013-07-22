@@ -7,8 +7,15 @@
 GPG=/usr/bin/gpg
 SCP=/usr/bin/scp
 RM=/bin/rm
-EXTIP=`/sbin/ifconfig $EXTIF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
-GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | sed -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
+SED=/bin/sed
+BASENAME=/usr/bin/basename
+LVREMOVE=/sbin/lvremove
+DMSETUP=/sbin/dmsetup
+UMOUNT=/bin/umount
+
+
+EXTIP=`/sbin/ifconfig $EXTIF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
+GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 VARRUN=/var/run/kvm-manager
 LVMLOG=$LOGPATH/lvm.log
 MNT=/mnt/snapshots
@@ -313,8 +320,8 @@ check_guest_status () {
 
 check_volume_not_mounted () {
 	device=$1
-	volume_name=`basename $device`
-	dm_volume=`echo $volume_name | sed -n 's/-/--/pg'`
+	volume_name=`$BASENAME $device`
+	dm_volume=`echo $volume_name | $SED -n 's/-/--/pg'`
         result=`/bin/mount | /bin/grep $dm_volume`
 
 	if [ "$result" != "" ]
@@ -603,7 +610,7 @@ __backup_remove () {
 
 	# Remove all files older than the retention period
 
-	filename=`basename $prefix`
+	filename=`$BASENAME $prefix`
 	find `dirname $prefix` -name "$filename*" -mtime +$BACKUP_RETENTION -exec $KVM_MANAGER_ROOT/bin/kvm-rm {} \; 
 }
 
@@ -678,7 +685,7 @@ __backup_incremental () {
 	then
 		# Generate the rsync incremental backup
 		dir=`dirname $LATEST_FULL`
-		file=`basename $LATEST_FULL`
+		file=`$BASENAME $LATEST_FULL`
 		cd $dir
 		today=`date +%F`
 		batch=`__backup_incremental_name $backup_prefix $today`
@@ -713,15 +720,26 @@ do_snapshot_remove () {
 	then
 		if /bin/mountpoint -q "$mountpoint"
 		then
-			umount $mountpoint
+			$UMOUNT $mountpoint
 		fi
 
-		lvremove -f $snapshot > /dev/null
+		$LVREMOVE -f $snapshot > /dev/null
 
 		if [ "$?" != "0" ]
 		then
 			echo `date` "lvremove $snapshot failed" >> $LVMLOG
 		fi
+	fi
+
+
+	vg_name=$($BASENAME $(dirname $snapshot))
+	snapshot_name=$($BASENAME $snapshot)
+	snapshot_cow=`echo $snapshot_name | $SED 's/-/--/g'`-cow
+	snapshot_cow_file=/dev/mapper/${vg_name}-${snapshot_cow}
+
+	if [ -e "$snapshot_cow_file" ]
+	then    
+		$DMSETUP remove -f $snapshot_cow_file 
 	fi
 }
 
@@ -729,7 +747,7 @@ __snapshot_create () {
 	volume=$1
 	offset=$2
 	snapshot=${volume}-snapshot
-	snapshot_name=`basename $snapshot`
+	snapshot_name=`$BASENAME $snapshot`
 	mountpoint=$MNT/$snapshot_name
 	mkdir -p $mountpoint
 	
@@ -769,7 +787,7 @@ __snapshot_create () {
 __snapshot_remove () {
 	volume=$1
 	snapshot=${volume}-snapshot
-	snapshot_name=`basename $snapshot`
+	snapshot_name=`$BASENAME $snapshot`
 	mountpoint=$MNT/$snapshot_name
 
 	do_snapshot_remove $snapshot $mountpoint
