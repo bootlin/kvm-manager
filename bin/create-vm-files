@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Creates the user and files needed to run a VM
+# Run this command with root permissions
+#
+# TODO: create the LVM volumes and format
+# them, according to guest definition files
+# (will have to add size info)
+
+machine=$1
+udevrules=/etc/udev/rules.d/99-lvm.rules
+logdir=/var/log/kvm/$machine
+
+/usr/sbin/adduser --no-create-home --system kvm-$machine --ingroup kvm
+
+/usr/bin/touch $udevrules
+/bin/echo "SUBSYSTEM==\"block\", ENV{DM_LV_NAME}==\"$machine-*\", OWNER=\"kvm-$machine\", MODE=\"0600\"" >> $udevrules
+/sbin/udevadm control --reload-rules
+/sbin/udevadm trigger
+
+/bin/mkdir -p $logdir
+/bin/chown kvm-$machine.kvm $logdir
+/bin/chmod go-rwX $logdir
