@@ -13,7 +13,9 @@ LVREMOVE=/sbin/lvremove
 DMSETUP=/sbin/dmsetup
 UMOUNT=/bin/umount
 SLEEP=/bin/sleep
-
+CP=/bin/cp
+LN=/bin/ln
+MKDIR=/bin/mkdir
 
 EXTIP=`/sbin/ifconfig $EXTIF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
@@ -689,4 +691,87 @@ rc_main () {
 	exit 0
 }
 
-###############################################################
+###########################################################################################
+# Backup a remote filesystem
+###########################################################################################
+
+remote_filesystem_backup () {
+	remotedir=$1
+	localdirname=$2
+
+	dir=$backupdir/$localdirname
+	$MKDIR -p $dir	
+	latest=$dir/latest
+	new=$dir/`date +%Y-%m-%d-%H:%M:%S`
+		
+	if [ -h $latest ] 
+	then
+		previous=`readlink $latest`
+		$RM $latest
+		$CP -al $previous $new
+	fi
+
+	rsync -az --one-file-system --delete -e "ssh -p $port" root@$ip:$remotedir/ $new/
+	$LN -s $new $latest
+}
+
+###########################################################################################
+# Backup an entire host and all its VMs
+###########################################################################################
+
+remote_host_backup () {
+	
+	ip=$1
+	port=$2
+	backupdir=$3
+
+	machines=`ssh -p $port root@$ip $DIR/list-vms` 
+
+	for machine in $machines
+	do
+		snapshots=`ssh -p $port root@$ip $DIR/snapshot-create $machine`
+		for snapshot in $snapshots
+		do
+			echo "Processing $snapshot"
+			remote_filesystem_backup $snapshot `basename $snapshot`
+		done
+		ssh -p $port root@$ip $DIR/snapshot-remove $machine
+	done
+
+	remote_rootfs_backup $ip $port $backupdir
+}
+
+###########################################################################################
+# Backup a remote rootfs
+###########################################################################################
+
+remote_rootfs_backup () {
+
+	# Variables needed by remote_filesystem_backup
+	ip=$1
+	port=$2
+	backupdir=$3
+
+	remote_filesystem_backup / rootfs
+}
+	
+###########################################################################################
+# Slow port knocking commmand
+###########################################################################################
+
+slow_knock () {
+
+	# Standard knock is too fast from the backup server
+
+	ip=$1
+	port1=$2
+	port2=$3
+	port3=$4
+	port4=$5
+
+	for port in $2 $3 $4 $5
+	do
+		/usr/bin/knock $ip $port
+		/bin/sleep 1
+	done
+}
