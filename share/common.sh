@@ -31,7 +31,7 @@ MKFS=/sbin/mkfs.ext4
 MKSWAP=/sbin/mkswap
 
 GUEST_DEFS=/etc/kvm-manager/guests
-$KVM_MANAGER=$KVM_MANAGER_ROOT/bin/kvm-manager
+KVM_MANAGER=$KVM_MANAGER_ROOT/bin/kvm-manager
 
 EXTIP=`/sbin/ifconfig $EXTIF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
