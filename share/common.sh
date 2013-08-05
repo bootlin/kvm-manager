@@ -7,15 +7,31 @@
 GPG=/usr/bin/gpg
 SCP=/usr/bin/scp
 RM=/bin/rm
-SED=/bin/sed
-BASENAME=/usr/bin/basename
-LVREMOVE=/sbin/lvremove
-DMSETUP=/sbin/dmsetup
-UMOUNT=/bin/umount
-SLEEP=/bin/sleep
+RMDIR=/bin/rmdir
 CP=/bin/cp
 LN=/bin/ln
+SED=/bin/sed
+BASENAME=/usr/bin/basename
+DIRNAME=/usr/bin/dirname
+LVREMOVE=/sbin/lvremove
+DMSETUP=/sbin/dmsetup
+MOUNT=/bin/mount
+UMOUNT=/bin/umount
+SLEEP=/bin/sleep
 MKDIR=/bin/mkdir
+SSH=/usr/bin/ssh
+RSYNC=/usr/bin/rsync
+LVS=/sbin/lvs
+LVCREATE=/sbin/lvcreate
+LVREMOVE=/sbin/lvremove
+GREP=/bin/grep
+AWK=/usr/bin/awk
+DD=/bin/dd
+MKFS=/sbin/mkfs.ext4
+MKSWAP=/sbin/mkswap
+
+GUEST_DEFS=/etc/kvm-manager/guests
+$KVM_MANAGER=$KVM_MANAGER_ROOT/bin/kvm-manager
 
 EXTIP=`/sbin/ifconfig $EXTIF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
