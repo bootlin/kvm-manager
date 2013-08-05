@@ -12,12 +12,12 @@ user=kvm-$machine
 udevrules=/etc/udev/rules.d/99-lvm.rules
 logdir=/var/log/kvm/$machine
 
-if [ "$(grep $user /etc/passwd)" = "" ]
+if [ "$(grep "${user}:" /etc/passwd)" = "" ]
 then
 	/usr/sbin/adduser --no-create-home --system $user --ingroup kvm
 fi
 
-if [ ! -f "$udevrules" -o "$(/bin/grep $user $udevrules)" = "" ]
+if [ ! -f "$udevrules" -o "$(/bin/grep ${machine}- $udevrules)" = "" ]
 then
 	/usr/bin/touch $udevrules
 	/bin/echo "SUBSYSTEM==\"block\", ENV{DM_LV_NAME}==\"$machine-*\", OWNER=\"$user\", MODE=\"0600\"" >> $udevrules
