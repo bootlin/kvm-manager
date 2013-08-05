@@ -47,9 +47,9 @@ final_copy_volume () {
 
 # Now migrate machine
 
-. $GUEST_DEFS/$m
+. $GUEST_DEFS/$machine
 
-$SSH $KVM_MANAGER $m stop
+$SSH $KVM_MANAGER $machine stop
 final_copy_volume $GUEST_BOOT boot
 final_copy_volume $GUEST_ROOT
 final_copy_volume $GUEST_DATA
