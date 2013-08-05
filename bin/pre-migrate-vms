@@ -1,0 +1,129 @@
+#!/bin/sh
+# Migrating a server to a new machine 
+
+remote=$1
+dir=/etc/kvm-manager/guests
+
+RSYNC=/usr/bin/rsync
+MKDIR=/bin/mkdir
+
+# Useful routines
+
+copy () {
+	file=$1
+	if [ ! -e "$file" ]
+	then
+		echo "Copying $file from $remote..."
+		$MKDIR -p `$DIRNAME $file`
+		$RSYNC -Pav $remote:$file $file 
+	fi
+}
+
+copy_volume () {
+	vol=$1
+	voltype=$2
+	backup=$3
+	volname=`$BASENAME $vol`
+	vg=$($BASENAME $($DIRNAME $vol))
+	
+	# Create partition if it doesn't exist yet
+
+	if [ ! -e "$vol" ]
+	then
+		echo "Creating new $volname volume"
+		volinfo=`$SSH $remote $LVS $vol | $GREP $volname` 
+		volsize=`echo $volinfo | $AWK '{ print $4 }'`
+		$LVCREATE -L $volsize -n $volname $vg
+
+		# Initialize boot partition
+		if [ "$voltype" = "boot" ]
+		then
+			echo "Copying raw $vol..."
+			image=/tmp/${volname}.img
+			$SSH $remote $DD if=$vol of=$image bs=1M
+			$RSYNC -Pavz $remote:$image $image
+			$DD if=$image of=$vol bs=1M	
+			$SSH $remote $RM -f $image 
+			$RM -f $image
+		elif [  "$voltype" != "extra" -o "$backup" = "yes" ]
+		then	
+			echo "Formating $vol..."
+			$MKFS $vol
+		else
+			# Could be a swap partition
+			res=`echo $vol | $GREP swap`
+	
+			if [ "$res" != "" ]
+			then
+				$MKSWAP $vol
+			fi
+		fi
+		
+	fi
+
+	# Now copy volume contents
+
+	if [ "$voltype" != "extra" -o "$backup" = "yes" ] 
+	then
+		snapshot_name=${volname}-snapshot
+		mnt=/mnt/$volname
+		snapshot_dev=`$DIRNAME $vol`/$snapshot_name
+
+		$SSH $remote $MKDIR -p $mnt
+		$MKDIR -p $mnt
+
+		$SSH $remote $LVCREATE -L2G -s -n $snapshot_name $vol > /dev/null 
+	
+		if [ "$voltype" = "boot" ]
+		then
+			# Mounting the boot partition with offset 512*63
+          		# 63 should be computed by running fdisk -lu on this partition
+			$SSH $remote $MOUNT -o loop,offset=32256 $snapshot_dev $mnt
+			$MOUNT -o loop,offset=32256 $vol $mnt
+		else
+			$SSH $remote $MOUNT $snapshot_dev $mnt
+			$MOUNT $vol $mnt
+		fi
+
+		echo "Rsyncing a snapshot of $vol... please wait"
+		$RSYNC -az $remote:$mnt/ $mnt/
+
+		# Cleaning up
+		$UMOUNT $mnt
+		$RMDIR $mnt
+		$SSH $remote $UMOUNT $mnt
+		$SSH $remote $RMDIR $mnt
+		$SSH $remote "$LVREMOVE -f $snapshot_dev > /dev/null"
+	fi
+}
+
+# Copy files
+
+copy $dir
+copy /etc/default/kvm-manager
+copy /etc/network/if-up.d/iptables
+
+# Load settings
+
+. /etc/default/kvm-manager
+. $KVM_MANAGER_ROOT/share/common.sh
+
+# Now pre-migrate all machines
+
+for m in $ENABLED_MACHINES
+do
+	unset GUEST_EXTRADISK
+        unset GUEST_BACKUP_EXTRADISK
+
+	. $GUEST_DEFS/$m
+
+	copy_volume $GUEST_BOOT boot
+	copy_volume $GUEST_ROOT
+	copy_volume $GUEST_DATA
+
+	if [ "$GUEST_EXTRADISK" != "" ]
+        then
+		copy_volume $GUEST_EXTRADISK extra $GUEST_BACKUP_EXTRADISK
+	fi		
+
+done

@@ -1,0 +1,62 @@
+#!/bin/sh
+# Migrating a VM from an older server to a new machine 
+
+. /etc/default/kvm-manager
+. $KVM_MANAGER_ROOT/share/common.sh
+
+remote=$1
+machine=$2
+
+# Useful routines
+
+final_copy_volume () {
+	vol=$1
+	voltype=$2
+	backup=$3
+	volname=`$BASENAME $vol`
+	vg=$($BASENAME $($DIRNAME $vol))
+	
+	if [ "$voltype" != "extra" -o "$backup" = "yes" ] 
+	then
+		mnt=/mnt/$volname
+
+		$SSH $remote $MKDIR -p $mnt
+		$MKDIR -p $mnt
+
+		if [ "$voltype" = "boot" ]
+		then
+			# Mounting the boot partition with offset 512*63
+          		# 63 should be computed by running fdisk -lu on this partition
+			$SSH $remote $MOUNT -o loop,offset=32256 $vol $mnt
+			$MOUNT -o loop,offset=32256 $vol $mnt
+		else
+			$SSH $remote $MOUNT $vol $mnt
+			$MOUNT $vol $mnt
+		fi
+
+		echo "Rsyncing $vol... please wait"
+		$RSYNC -az $remote:$mnt/ $mnt/
+
+		# Cleaning up
+		$UMOUNT $mnt
+		$RMDIR $mnt
+		$SSH $remote $UMOUNT $mnt
+		$SSH $remote $RMDIR $mnt
+	fi
+}
+
+# Now migrate machine
+
+. $GUEST_DEFS/$m
+
+$SSH $KVM_MANAGER $m stop
+final_copy_volume $GUEST_BOOT boot
+final_copy_volume $GUEST_ROOT
+final_copy_volume $GUEST_DATA
+
+if [ "$GUEST_EXTRADISK" != "" ]
+then
+	final_copy_volume $GUEST_EXTRADISK extra $GUEST_BACKUP_EXTRADISK
+fi		
+
+echo "Done"
