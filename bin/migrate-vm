@@ -35,7 +35,7 @@ final_copy_volume () {
 		fi
 
 		echo "Rsyncing $vol... please wait"
-		$RSYNC -az $remote:$mnt/ $mnt/
+		$RSYNC -az --delete $remote:$mnt/ $mnt/
 
 		# Cleaning up
 		$UMOUNT $mnt

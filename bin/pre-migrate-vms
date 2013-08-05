@@ -86,7 +86,7 @@ copy_volume () {
 		fi
 
 		echo "Rsyncing a snapshot of $vol... please wait"
-		$RSYNC -az $remote:$mnt/ $mnt/
+		$RSYNC -az --delete $remote:$mnt/ $mnt/
 
 		# Cleaning up
 		$UMOUNT $mnt
