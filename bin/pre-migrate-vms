@@ -126,4 +126,5 @@ do
 		copy_volume $GUEST_EXTRADISK extra $GUEST_BACKUP_EXTRADISK
 	fi		
 
+	$KVM_MANAGER_ROOT/bin/create-vm-files $m
 done
