@@ -49,6 +49,9 @@ final_copy_volume () {
 
 . $GUEST_DEFS/$machine
 
+# Open outbound connections
+$KVM_MANAGER_ROOT/bin/host-enable-maintenance
+
 $SSH $remote $KVM_MANAGER $machine stop
 final_copy_volume $GUEST_BOOT boot
 final_copy_volume $GUEST_ROOT
@@ -58,5 +61,8 @@ if [ "$GUEST_EXTRADISK" != "" ]
 then
 	final_copy_volume $GUEST_EXTRADISK extra $GUEST_BACKUP_EXTRADISK
 fi		
+
+# Close outbound connections
+$KVM_MANAGER_ROOT/bin/host-disable-maintenance
 
 echo "Done"
