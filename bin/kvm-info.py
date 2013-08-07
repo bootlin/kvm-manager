@@ -113,7 +113,7 @@ total_ram = 0
 for pid in get_kvm_pids():
 	machine_pid[get_kvm_machine_name(pid)] = pid
 
-print '%-9s %-8s %-5s %-7s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % ('Machine', 'RAM', 'PID', 'RSS', 'CPU', 'CPU%', 'Since', 'IP', 'RX', 'TX', 'Safe')
+print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % ('Machine', 'RAM', 'PID', 'RSS', 'CPU', 'CPU%', 'Since', 'IP', 'RX', 'TX', 'Safe')
 
 for path in glob.glob('/etc/kvm-manager/guests/*'):
 	
@@ -144,7 +144,7 @@ for path in glob.glob('/etc/kvm-manager/guests/*'):
 			safe = '\033[31;1mno\033[0m'
 	else:
 		pid = '-----'
-		rss = '-------'
+		rss = '--------'
 		cputime = '--------'
 		cpu_percent_total = '------'
 		starttime = '------'
@@ -153,6 +153,6 @@ for path in glob.glob('/etc/kvm-manager/guests/*'):
 		tx = '--------'
 		safe = '----'
 	
-	print '%-9s %-8s %-5s %-7s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % (machine, ram , pid, rss, cputime, cpu_percent_total, starttime, ip, rx, tx, safe)
+	print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % (machine, ram , pid, rss, cputime, cpu_percent_total, starttime, ip, rx, tx, safe)
 
 print 'Total RAM: ' + str(total_ram) + ' MB'
