@@ -86,21 +86,9 @@ launch_kvm () {
 
 	/bin/sync
 
-	# Test Ubuntu release
-        # boot=on mandatory in boot drive definitions on 10.04
-
-        . /etc/lsb-release
-
-        if [ "$DISTRIB_RELEASE" = "10.04" ]
-        then
-                bootorder=",boot=on"
-        else
-                bootorder=""
-        fi
-
 	# Start VM
 
-	nice -$GUEST_PRIO /usr/bin/qemu-start -u kvm-$GUEST_NAME -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -nographic -drive file=$GUEST_BOOT,cache=none,if=virtio$bootorder -drive file=$GUEST_ROOT,cache=none,if=virtio -drive file=$GUEST_DATA,cache=none,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -daemonize -name $GUEST_NAME
+	nice -$GUEST_PRIO /usr/bin/qemu-start -u kvm-$GUEST_NAME -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -drive file=$GUEST_BOOT,cache=none,if=virtio -drive file=$GUEST_ROOT,cache=none,if=virtio -drive file=$GUEST_DATA,cache=none,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -parallel null -display none -vga none -daemonize -name $GUEST_NAME
 }
 
 # Shutdown guest ################################################

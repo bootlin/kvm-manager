@@ -17,7 +17,7 @@ def get_kvm_pids():
 			cmd_name = f.readline().split()[1]
 			f.close()
 
-			if cmd_name == 'kvm':
+			if cmd_name == 'qemu-system-x86':
 				pids.append(dirname)
 	return pids
 
