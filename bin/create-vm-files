@@ -17,7 +17,7 @@ then
 	/usr/sbin/adduser --no-create-home --system $user --ingroup kvm
 fi
 
-if [ ! -f "$udevrules" -o "$(/bin/grep ${machine}- $udevrules)" = "" ]
+if [ ! -f "$udevrules" -a "$(/bin/grep ${machine}- $udevrules)" = "" ]
 then
 	/usr/bin/touch $udevrules
 	/bin/echo "SUBSYSTEM==\"block\", ENV{DM_LV_NAME}==\"$machine-*\", OWNER=\"$user\", MODE=\"0600\"" >> $udevrules
