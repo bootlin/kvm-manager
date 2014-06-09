@@ -320,7 +320,7 @@ disable_any_host_connections () {
 # Check guest running status ####################################
 
 check_guest_status () {
-	STATUS=`/usr/bin/pgrep -fu kvm-$GUEST_NAME "^/usr/bin/kvm .* \-name $GUEST_NAME$"`
+	STATUS=`/usr/bin/pgrep -fu kvm-$GUEST_NAME "^qemu-system-x86_64 .* \-name $GUEST_NAME$"`
 }
 
 # Make sure that the partition is not currently mounted ########
