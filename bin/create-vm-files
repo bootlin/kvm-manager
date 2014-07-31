@@ -17,13 +17,9 @@ then
 	/usr/sbin/adduser --no-create-home --system $user --ingroup kvm
 fi
 
-if [ ! -f "$udevrules" -o "$(/bin/grep ${machine}- $udevrules)" = "" ]
-then
-	/usr/bin/touch $udevrules
-	/bin/echo "SUBSYSTEM==\"block\", ENV{DM_LV_NAME}==\"$machine-*\", OWNER=\"$user\", MODE=\"0600\"" >> $udevrules
-	/sbin/udevadm control --reload-rules
-	/sbin/udevadm trigger
-fi
+/bin/echo "SUBSYSTEM==\"block\", ENV{DM_LV_NAME}==\"$machine-*\", OWNER=\"$user\", MODE=\"0600\"" >> $udevrules
+/sbin/udevadm control --reload-rules
+/sbin/udevadm trigger
 
 if [ ! -d $logdir ]
 then
