@@ -53,7 +53,7 @@ create_guest_if () {
 # Destroy the tap interface #####################################
 
 destroy_guest_if () {
-	
+
 	# 3s pause needed to avoid:
 	# TUNSETIFF: Device or resource busy
 	$SLEEP 3
@@ -66,7 +66,7 @@ launch_kvm () {
 	# The kvm-name parameter is a dummy one
 	# used to quickly find the corresponding process with "ps"
 
-	
+
 	# Make sure disk images are not mounted
         check_volume_not_mounted $GUEST_BOOT
         check_volume_not_mounted $GUEST_ROOT
@@ -77,7 +77,7 @@ launch_kvm () {
 	if [ -e "$GUEST_EXTRADISK" ]
 	then
         	check_volume_not_mounted $GUEST_EXTRADISK
-		extradisks="-drive file=$GUEST_EXTRADISK,cache=none,if=virtio"	
+		extradisks="-drive file=$GUEST_EXTRADISK,cache=none,if=virtio"
 	fi
 
 	# Sync disks
@@ -156,8 +156,8 @@ disable_guest_connections () {
 
 __connection_to_proxy () {
 	ACTION=$1
-	$IPT -$ACTION FORWARD -p tcp -s $HTTP_PROXY_IP -d $GUEST_IP --dport http -j ACCEPT 
-	$IPT -$ACTION FORWARD -p tcp -d $HTTP_PROXY_IP -s $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT 
+	$IPT -$ACTION FORWARD -p tcp -s $HTTP_PROXY_IP -d $GUEST_IP --dport http -j ACCEPT
+	$IPT -$ACTION FORWARD -p tcp -d $HTTP_PROXY_IP -s $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 enable_connection_to_proxy () {
@@ -172,8 +172,8 @@ disable_connection_to_proxy () {
 
 __guest_smtp () {
 	ACTION=$1
-	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT 
-	$IPT -$ACTION FORWARD -p tcp -s $SMTP_IP -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT 
+	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	$IPT -$ACTION FORWARD -p tcp -s $SMTP_IP -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 enable_guest_smtp () {
@@ -255,7 +255,7 @@ disable_inside_port_forwarding () {
 	inside_port_forwarding D
 }
 
-# Enable ping to guest (from the host only) #################################### 
+# Enable ping to guest (from the host only) ####################################
 
 ping_to_guest () {
 	ACTION=$1
@@ -298,14 +298,14 @@ enable_ssh_to_guest () {
 	then
 		__outside_port_forwarding A tcp $GUEST_SSH_PORT
 	fi
-} 	
+}
 
 disable_ssh_to_guest () {
 	if [ "$GUEST_SSH_PORT" != "" ]
 	then
 		__outside_port_forwarding D tcp $GUEST_SSH_PORT
 	fi
-} 	
+}
 
 # Enable / disable host outgoing connections #################################
 
@@ -403,7 +403,7 @@ stop () {
 	# If kvm is still alive after 60 s
         # (guest OS didn't complete shutdown, or isn't responding to ping),
         # quit the emulator
-	
+
 	count=0
 	stopped=0
 
@@ -412,7 +412,7 @@ stop () {
 		check_guest_status
         	if [ $STATUS ]
         	then
-			count=`expr $count + 1`	
+			count=`expr $count + 1`
 			$SLEEP 1
         	else
 			stopped=1
@@ -533,16 +533,16 @@ remove_iptables () {
 
 	# Clear maintenance status flag
 	# in case it is on
- 	maintenance_status_off	
+ 	maintenance_status_off
 }
 
 # RC script: get guest information ##############################
-# (Value of a specified shell variable 
+# (Value of a specified shell variable
 
 guest_info () {
 
 	var="$"$1
-	eval echo $var 
+	eval echo $var
 }
 
 # Support for VM disk snapshots #######################################
@@ -575,8 +575,8 @@ do_snapshot_remove () {
 	snapshot_cow_file=/dev/mapper/${vg_name}-${snapshot_cow}
 
 	if [ -e "$snapshot_cow_file" ]
-	then    
-		$DMSETUP remove -f $snapshot_cow_file 
+	then
+		$DMSETUP remove -f $snapshot_cow_file
 	fi
 }
 
@@ -587,14 +587,14 @@ __snapshot_create () {
 	snapshot_name=`$BASENAME $snapshot`
 	mountpoint=$MNT/$snapshot_name
 	mkdir -p $mountpoint
-	
+
 	# Destroy any snapshot that would still exist
 	do_snapshot_remove $snapshot $mountpoint
 
 	# Create a new snapshot
 
 	# Using 2G for snapshot size... It's the maximum size
-        # of changes to the original volume during the life of the snapshot 
+        # of changes to the original volume during the life of the snapshot
 	# 2G should be more than enough
 
 	lvcreate -L2G -s -n $snapshot_name $volume > /dev/null
@@ -611,7 +611,7 @@ __snapshot_create () {
 		else
 			mount -o ro $snapshot $mountpoint
 		fi
-	
+
 		if /bin/mountpoint -q $mountpoint
 		then
 			mountpoints="$mountpoints $mountpoint"
@@ -631,14 +631,17 @@ __snapshot_remove () {
 }
 
 snapshot_create () {
-	
+
 	mountpoints=""
 	__snapshot_create $GUEST_ROOT
 	__snapshot_create $GUEST_DATA
 
-	# Mounting the boot partition with offset 512*63
-	# 63 should be computed by running fdisk -lu on this partition
-	__snapshot_create $GUEST_BOOT 32256
+	# Mounting the boot partition
+
+        start=`fdisk -lu $GUEST_BOOT | grep ${GUEST_BOOT}1 | awk '{print $3}'`
+        startoffset=$(($start * 512))
+
+        __snapshot_create $GUEST_BOOT $startoffset
 
         if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" = "yes" ]
         then
@@ -647,7 +650,7 @@ snapshot_create () {
 }
 
 snapshot_remove () {
-	
+
 	__snapshot_remove $GUEST_BOOT
 	__snapshot_remove $GUEST_ROOT
 	__snapshot_remove $GUEST_DATA
@@ -657,7 +660,7 @@ snapshot_remove () {
 		__snapshot_remove $GUEST_EXTRADISK
         fi
 }
-	 
+
 # Main code for RC scripts ####################################################
 
 rc_main () {
@@ -704,11 +707,11 @@ remote_filesystem_backup () {
 	localdirname=$2
 
 	dir=$backupdir/$localdirname
-	$MKDIR -p $dir	
+	$MKDIR -p $dir
 	latest=$dir/latest
 	new=$dir/`date +%Y-%m-%d-%H:%M:%S`
-		
-	if [ -h $latest ] 
+
+	if [ -h $latest ]
 	then
 		previous=`readlink $latest`
 		$RM $latest
@@ -724,12 +727,12 @@ remote_filesystem_backup () {
 ###########################################################################################
 
 remote_host_backup () {
-	
+
 	ip=$1
 	port=$2
 	backupdir=$3
 
-	machines=`ssh -p $port root@$ip $DIR/list-vms` 
+	machines=`ssh -p $port root@$ip $DIR/list-vms`
 
 	for machine in $machines
 	do
@@ -758,7 +761,7 @@ remote_rootfs_backup () {
 
 	remote_filesystem_backup / rootfs
 }
-	
+
 ###########################################################################################
 # Slow port knocking commmand
 ###########################################################################################
