@@ -55,8 +55,15 @@ case "$1" in
 	exit 0
 	;;
   restart)
-	$0 stop
-	$0 start
+	# Restart the machines one by one
+	# Better in terms of uptime than stopping all machines first
+	# and starting them all again then
+	for m in $ENABLED_MACHINES
+	do
+		$KVM_MANAGER $m stop
+		$KVM_MANAGER $m start
+	done
+	exit 0
 	;;
   reload-iptables)
 	/etc/network/if-up.d/iptables
