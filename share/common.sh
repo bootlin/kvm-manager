@@ -291,22 +291,6 @@ disable_guest_ping () {
         guest_ping D
 }
 
-# Enable / disable ssh to guest ##############################################
-
-enable_ssh_to_guest () {
-	if [ "$GUEST_SSH_PORT" != "" ]
-	then
-		__outside_port_forwarding A tcp $GUEST_SSH_PORT
-	fi
-}
-
-disable_ssh_to_guest () {
-	if [ "$GUEST_SSH_PORT" != "" ]
-	then
-		__outside_port_forwarding D tcp $GUEST_SSH_PORT
-	fi
-}
-
 # Enable / disable host outgoing connections #################################
 
 enable_any_host_connections () {
@@ -453,7 +437,6 @@ enable_maintenance () {
 	if [ ! -f $GUEST_MAINTENANCE_FLAG ]
 	then
 	   enable_guest_connections
-	   enable_ssh_to_guest
 	   maintenance_status_on
 	fi
 }
@@ -462,7 +445,6 @@ disable_maintenance () {
 	if [ -f $GUEST_MAINTENANCE_FLAG ]
 	then
 	   disable_guest_connections
-	   disable_ssh_to_guest
 	   maintenance_status_off
 	fi
 }
