@@ -3,7 +3,7 @@
 . /etc/default/kvm-manager
 
 usage () {
-        echo "Usage: $0 vm-name {start|stop|reload-iptables|enable-maintenance|disable-maintenance|restart}" >&2
+        echo "Usage: $0 vm-name {start|stop|reload-iptables|restart}" >&2
         exit 3
 }
 

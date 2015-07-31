@@ -97,14 +97,6 @@ def get_interface_rx_info(interface):
 def get_interface_tx_info(interface):
 	return get_interface_info(interface).partition('(')[2].partition('(')[2].partition(')')[0]
 
-# Get guest maintenance status (safe or unsafe in maintenance mode)
-
-def machine_is_safe(machine):
-	if os.path.exists('/var/run/kvm-manager/' + machine + '_in_maintenance_mode'):
-		return 'no'
-	else:
-		return 'yes'
-
 # Main program
 
 machine_pid = dict()
@@ -116,7 +108,7 @@ for pid in get_kvm_pids():
 print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % ('Machine', 'RAM', 'PID', 'RSS', 'CPU', 'CPU%', 'Since', 'IP', 'RX', 'TX', 'Safe')
 
 for path in glob.glob('/etc/kvm-manager/guests/*'):
-	
+
 	machine = os.path.basename(path)
 
 	ram = get_machine_info(machine, 'GUEST_RAM')
@@ -125,9 +117,9 @@ for path in glob.glob('/etc/kvm-manager/guests/*'):
 
 	if machine_pid.has_key(machine):
 		pid = machine_pid[machine]
-	 	rss = get_process_rss(pid)	
-		cputime = get_process_cputime(pid)		
-		cpu_percent_total = get_process_cpu_percent_total(pid)		
+		rss = get_process_rss(pid)
+		cputime = get_process_cputime(pid)
+		cpu_percent_total = get_process_cpu_percent_total(pid)
 		starttime = get_process_starttime(pid)
 		ip = get_machine_info(machine, 'GUEST_IP')
 		interface = get_machine_info(machine, 'GUEST_IF')
@@ -138,10 +130,6 @@ for path in glob.glob('/etc/kvm-manager/guests/*'):
 
 		rx = get_interface_tx_info(interface)
 		tx = get_interface_rx_info(interface)
-		safe = machine_is_safe(machine)
-
-		if safe == 'no':
-			safe = '\033[31;1mno\033[0m'
 	else:
 		pid = '-----'
 		rss = '--------'
@@ -151,8 +139,7 @@ for path in glob.glob('/etc/kvm-manager/guests/*'):
 		ip = '----------'
 		rx = '--------'
 		tx = '--------'
-		safe = '----'
-	
-	print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % (machine, ram , pid, rss, cputime, cpu_percent_total, starttime, ip, rx, tx, safe)
+
+	print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s' % (machine, ram , pid, rss, cputime, cpu_percent_total, starttime, ip, rx, tx)
 
 print 'Total RAM: ' + str(total_ram) + ' MB'

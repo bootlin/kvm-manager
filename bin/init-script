@@ -69,29 +69,12 @@ case "$1" in
 	/etc/network/if-up.d/iptables
 	for m in $ENABLED_MACHINES
 	do
-		$KVM_MANAGER $m disable-maintenance
 		$KVM_MANAGER $m load-iptables
 	done
 	exit 0
 	;;
-  enable-maintenance)
-	for m in $ENABLED_MACHINES
-	do
-		$KVM_MANAGER $m enable-maintenance
-	done
-	$KVM_MANAGER_ROOT/bin/kvm-info
-	exit 0
-	;;
-  disable-maintenance)
-	for m in $ENABLED_MACHINES
-	do
-		$KVM_MANAGER $m disable-maintenance
-	done
-	$KVM_MANAGER_ROOT/bin/kvm-info
-	exit 0
-	;;
   *)
-	echo "Usage: $0 {start|stop|reload-iptables|enable-maintenance|disable-maintenance|restart}" >&2
+	echo "Usage: $0 {start|stop|reload-iptables|restart}" >&2
 	exit 3
 	;;
 esac

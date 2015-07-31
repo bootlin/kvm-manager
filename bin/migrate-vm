@@ -49,7 +49,7 @@ final_copy_volume () {
 
 . $GUEST_DEFS/$machine
 
-# Open outbound connections
+# Need to open outbound connections
 $KVM_MANAGER_ROOT/bin/host-enable-maintenance
 
 $SSH $remote $KVM_MANAGER $machine stop

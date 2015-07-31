@@ -339,9 +339,6 @@ start () {
 stop () {
         log_begin_msg "Shutting down the kvm $GUEST_NAME virtual machine"
 
-	# Disable maintenance mode if it is active
-	disable_maintenance
-
         # Check that the virtual machine is actually running
 	check_guest_status
         if [ $STATUS ]
