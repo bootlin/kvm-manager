@@ -445,7 +445,6 @@ remove_iptables () {
 		disable_guest_ping
 	fi
 
-
 	if [ "$GUEST_NEED_SMTP" = "yes" ]
 	then
 		disable_guest_smtp

@@ -36,7 +36,7 @@ def get_kvm_machine_name(pid):
 
         except ValueError:
                 name = "Not found"
-	
+
 	return name
 
 # Get process information
@@ -105,7 +105,7 @@ total_ram = 0
 for pid in get_kvm_pids():
 	machine_pid[get_kvm_machine_name(pid)] = pid
 
-print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s %-4s' % ('Machine', 'RAM', 'PID', 'RSS', 'CPU', 'CPU%', 'Since', 'IP', 'RX', 'TX', 'Safe')
+print '%-9s %-8s %-5s %-8s %-12s %-6s %-6s %-10s %-9s %-8s' % ('Machine', 'RAM', 'PID', 'RSS', 'CPU', 'CPU%', 'Since', 'IP', 'RX', 'TX')
 
 for path in glob.glob('/etc/kvm-manager/guests/*'):
 
