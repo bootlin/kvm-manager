@@ -39,10 +39,6 @@ VARRUN=/var/run/kvm-manager
 LVMLOG=$LOGPATH/lvm.log
 MNT=/mnt/snapshots
 
-# Settings deduced from guest settings ##########################
-
-GUEST_MAINTENANCE_FLAG=$VARRUN/${GUEST_NAME}_in_maintenance_mode
-
 # Create and setup the guest tap interface ######################
 
 create_guest_if () {
@@ -112,6 +108,12 @@ destroy_guest () {
 	echo "quit" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 }
 
+# iptables functions
+
+open_guest_port () {
+  $IPT -A FORWARD -p $1 -s $2 -d $3 --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+}
+
 # Enable / disable DNS requests from the guest ##################
 
 guest_dns () {
@@ -128,28 +130,6 @@ enable_guest_dns () {
 
 disable_guest_dns () {
         guest_dns D
-}
-
-# Enable / disable guest initiated connections ################
-# Useful for package installs and updates
-
-guest_connections () {
-	ACTION=$1
-        # Forward guest requests to the outside
-	$IPT -$ACTION FORWARD -o $EXTIF -s $GUEST_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	# Forward outside packets from existing connections to the guest
-	$IPT -$ACTION FORWARD -i $EXTIF -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
-	# Allow guest connections to the host (mainly for DNS)
-	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
-}
-
-enable_guest_connections () {
-	guest_connections A
-}
-
-disable_guest_connections () {
-	guest_connections D
 }
 
 # ENABLES ACCESS TO AN HTTP PROXY ##############################################
@@ -326,17 +306,6 @@ check_volume_not_mounted () {
         fi
 }
 
-# Manipulate maintenance status #################################
-
-maintenance_status_off () {
-	$RM -f $GUEST_MAINTENANCE_FLAG
-}
-
-maintenance_status_on () {
- 	/bin/mkdir -p $VARRUN
-	/usr/bin/touch $GUEST_MAINTENANCE_FLAG
-}
-
 # RC script: start guest machine ################################
 
 start () {
@@ -431,24 +400,6 @@ status () {
        fi
 }
 
-# RC script: enable / disable  maintenance mode ################
-
-enable_maintenance () {
-	if [ ! -f $GUEST_MAINTENANCE_FLAG ]
-	then
-	   enable_guest_connections
-	   maintenance_status_on
-	fi
-}
-
-disable_maintenance () {
-	if [ -f $GUEST_MAINTENANCE_FLAG ]
-	then
-	   disable_guest_connections
-	   maintenance_status_off
-	fi
-}
-
 # RC script: load guest iptables settings #######################
 # Useful in case the host firewall script has been rerun,
 # which erases the settings for all the guests
@@ -478,10 +429,6 @@ load_iptables () {
 	then
 		enable_connection_to_proxy
 	fi
-
-	# Clear maintenance status flag
-	# in case it is still on from an aborted run
-	maintenance_status_off
 }
 
 # Script to remove iptables #####################################
@@ -512,10 +459,6 @@ remove_iptables () {
 	then
 		disable_connection_to_proxy
 	fi
-
-	# Clear maintenance status flag
-	# in case it is on
- 	maintenance_status_off
 }
 
 # RC script: get guest information ##############################
@@ -650,17 +593,7 @@ rc_main () {
         	start|stop|status)
                 	$1
                 	;;
-		enable-maintenance)
-			enable_maintenance
-			;;
-		disable-maintenance)
-			disable_maintenance
-			;;
-		load-iptables)
-			load_iptables
-			;;
 		reload-iptables)
-			disable_maintenance
 			load_iptables
 			;;
         	restart)
@@ -672,7 +605,7 @@ rc_main () {
 			guest_info $2
 			;;
         	*)
-                	echo "Usage: /etc/init.d/kvm-www {start|stop|restart|status|reload-iptables|load-iptables|info|enable-maintenance|disable-maintenance}"
+                	echo "Usage: /etc/init.d/kvm-www {start|stop|restart|status|reload-iptables|load-iptables|info}"
                 	exit 1
                 	;;
 	esac
