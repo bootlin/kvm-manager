@@ -600,7 +600,7 @@ rc_main () {
 			guest_info $2
 			;;
         	*)
-                	echo "Usage: /etc/init.d/kvm-www {start|stop|restart|status|reload-iptables|load-iptables|info}"
+                	echo "Usage: /etc/init.d/kvm-www {start|stop|restart|status|reload-iptables|info}"
                 	exit 1
                 	;;
 	esac

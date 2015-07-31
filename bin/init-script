@@ -69,7 +69,7 @@ case "$1" in
 	/etc/network/if-up.d/iptables
 	for m in $ENABLED_MACHINES
 	do
-		$KVM_MANAGER $m load-iptables
+		$KVM_MANAGER $m reload-iptables
 	done
 	exit 0
 	;;
