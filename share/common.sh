@@ -382,11 +382,7 @@ load_iptables () {
 
         enable_outside_port_forwarding
 	enable_ping_to_guest
-
-	if [ "$GUEST_NEED_DNS" = "yes" ]
-	then
-		enable_guest_dns
-	fi
+	enable_guest_dns
 
 	if [ "$GUEST_NEED_PING" = "yes" ]
 	then
@@ -410,11 +406,7 @@ remove_iptables () {
 
         disable_outside_port_forwarding
 	disable_ping_to_guest
-
-	if [ "$GUEST_NEED_DNS" = "yes" ]
-	then
-		disable_guest_dns
-	fi
+	disable_guest_dns
 
 	if [ "$GUEST_NEED_PING" = "yes" ]
 	then
