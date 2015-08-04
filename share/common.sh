@@ -150,7 +150,6 @@ disable_guest_dns () {
 __connection_to_proxy () {
 	ACTION=$1
 	$IPT -$ACTION FORWARD -p tcp -s $HTTP_PROXY_IP -d $GUEST_IP --dport http -j ACCEPT
-	$IPT -$ACTION FORWARD -p tcp -d $HTTP_PROXY_IP -s $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 enable_connection_to_proxy () {
@@ -166,7 +165,6 @@ disable_connection_to_proxy () {
 __guest_smtp () {
 	ACTION=$1
 	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	$IPT -$ACTION FORWARD -p tcp -s $SMTP_IP -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 enable_guest_smtp () {
@@ -185,7 +183,6 @@ __outside_port_forwarding () {
 	PORTS=$3
 	$IPT -t nat -$ACTION PREROUTING -p $PROTOCOL -d $GUEST_PUBLIC_IP -m multiport --dport $PORTS -j DNAT --to-destination $GUEST_IP
 	$IPT -$ACTION FORWARD -i $EXTIF -o $GUEST_IF -p $PROTOCOL -d $GUEST_IP -m multiport --dport $PORTS -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	$IPT -$ACTION FORWARD -s $GUEST_IP -i $GUEST_IF -o $EXTIF -p $PROTOCOL -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 outside_port_forwarding () {
@@ -236,8 +233,6 @@ guest_ping () {
 	ACTION=$1
         # Forward guest ping requests to the outside
         $IPT -$ACTION FORWARD -p icmp -o $EXTIF -s $GUEST_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-        # Forward outside packets from existing connections to the guest
-        $IPT -$ACTION FORWARD -p icmp -i $EXTIF -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
 }
 
 enable_guest_ping () {
