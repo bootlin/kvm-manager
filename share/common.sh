@@ -118,6 +118,15 @@ open_guest_port () {
   fi
 }
 
+open_guest_ports () {
+  if [ "$3" = "any" ]
+  then
+  	$IPT -A FORWARD -p $1 -s $2 -m multiport --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  else
+  	$IPT -A FORWARD -p $1 -s $2 -d $3 -m multiport --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  fi
+}
+
 # Enable / disable DNS requests from the guest ##################
 
 guest_dns () {
