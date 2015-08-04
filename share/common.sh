@@ -112,18 +112,18 @@ destroy_guest () {
 open_guest_port () {
   if [ "$3" = "any" ]
   then
-  	$IPT -A FORWARD -p $1 -s $2 --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  	$IPT -A FORWARD -p $1 -s $2 --dport $4 -m state --state NEW -j ACCEPT
   else
-  	$IPT -A FORWARD -p $1 -s $2 -d $3 --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  	$IPT -A FORWARD -p $1 -s $2 -d $3 --dport $4 -m state --state NEW -j ACCEPT
   fi
 }
 
 open_guest_ports () {
   if [ "$3" = "any" ]
   then
-  	$IPT -A FORWARD -p $1 -s $2 -m multiport --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  	$IPT -A FORWARD -p $1 -s $2 -m multiport --dport $4 -m state --state NEW -j ACCEPT
   else
-  	$IPT -A FORWARD -p $1 -s $2 -d $3 -m multiport --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  	$IPT -A FORWARD -p $1 -s $2 -d $3 -m multiport --dport $4 -m state --state NEW -j ACCEPT
   fi
 }
 
@@ -131,10 +131,8 @@ open_guest_ports () {
 
 guest_dns () {
 	ACTION=$1
-	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
-	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
-	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
-	$IPT -$ACTION OUTPUT -s $GUEST_GW -d $GUEST_IP -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p udp --dport 53 -m state --state NEW -j ACCEPT
+	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p tcp --dport 53 -m state --state NEW -j ACCEPT
 }
 
 enable_guest_dns () {
@@ -164,7 +162,7 @@ disable_connection_to_proxy () {
 
 __guest_smtp () {
 	ACTION=$1
-	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW -j ACCEPT
 }
 
 enable_guest_smtp () {
@@ -182,7 +180,7 @@ __outside_port_forwarding () {
 	PROTOCOL=$2
 	PORTS=$3
 	$IPT -t nat -$ACTION PREROUTING -p $PROTOCOL -d $GUEST_PUBLIC_IP -m multiport --dport $PORTS -j DNAT --to-destination $GUEST_IP
-	$IPT -$ACTION FORWARD -i $EXTIF -o $GUEST_IF -p $PROTOCOL -d $GUEST_IP -m multiport --dport $PORTS -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	$IPT -$ACTION FORWARD -i $EXTIF -o $GUEST_IF -p $PROTOCOL -d $GUEST_IP -m multiport --dport $PORTS -m state --state NEW -j ACCEPT
 }
 
 outside_port_forwarding () {
@@ -214,9 +212,6 @@ disable_outside_port_forwarding () {
 ping_to_guest () {
 	ACTION=$1
 	$IPT -$ACTION OUTPUT -p icmp -s $GUEST_GW -d $GUEST_IP -j ACCEPT
-	$IPT -$ACTION INPUT -p icmp -s $GUEST_IP -d $GUEST_GW -m state --state RELATED,ESTABLISHED -j ACCEPT
-	#$IPT -$ACTION OUTPUT -p icmp -d $GUEST_IP -j ACCEPT
-	#$IPT -$ACTION INPUT -p icmp -s $GUEST_IP -m state --state RELATED,ESTABLISHED -j ACCEPT
 }
 
 enable_ping_to_guest () {
@@ -232,7 +227,7 @@ disable_ping_to_guest () {
 guest_ping () {
 	ACTION=$1
         # Forward guest ping requests to the outside
-        $IPT -$ACTION FORWARD -p icmp -o $EXTIF -s $GUEST_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+        $IPT -$ACTION FORWARD -p icmp -o $EXTIF -s $GUEST_IP -m state --state NEW -j ACCEPT
 }
 
 enable_guest_ping () {
