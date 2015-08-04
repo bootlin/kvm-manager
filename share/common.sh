@@ -110,7 +110,12 @@ destroy_guest () {
 # iptables functions
 
 open_guest_port () {
-  $IPT -A FORWARD -p $1 -s $2 -d $3 --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  if [ "$3" = "any" ]
+  then
+  	$IPT -A FORWARD -p $1 -s $2 --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  else
+  	$IPT -A FORWARD -p $1 -s $2 -d $3 --dport $4 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+  fi
 }
 
 # Enable / disable DNS requests from the guest ##################
