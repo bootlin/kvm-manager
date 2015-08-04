@@ -212,42 +212,6 @@ disable_outside_port_forwarding () {
 }
 
 
-# Enable / disable nat and port forwarding from the inside to the outside #######
-
-__inside_port_forwarding () {
-	ACTION=$1
-	PROTOCOL=$2
-	PORTS=$3
-	# Not restricting to the outside interface, this allows connections
-	# to internal network hosts
-	$IPT -$ACTION FORWARD -p $PROTOCOL -s $GUEST_IP -m multiport --dport $PORTS -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	# Accept packets from existing connections to the guest
-	$IPT -$ACTION FORWARD -p $PROTOCOL -d $GUEST_IP -m state --state ESTABLISHED,RELATED -j ACCEPT
-}
-
-inside_port_forwarding () {
-
-	ACTION=$1
-
-	if [ "$GUEST_OUTPUT_TCP_PORTS" != "" ]
-	then
-		__inside_port_forwarding $ACTION tcp $GUEST_OUTPUT_TCP_PORTS
-	fi
-
-	if [ "$GUEST_OUTPUT_UDP_PORTS" != "" ]
-	then
-		__inside_port_forwarding $ACTION udp $GUEST_OUTPUT_UDP_PORTS
-	fi
-}
-
-enable_inside_port_forwarding () {
-	inside_port_forwarding A
-}
-
-disable_inside_port_forwarding () {
-	inside_port_forwarding D
-}
-
 # Enable ping to guest (from the host only) ####################################
 
 ping_to_guest () {
@@ -417,7 +381,6 @@ status () {
 load_iptables () {
 
         enable_outside_port_forwarding
-	enable_inside_port_forwarding
 	enable_ping_to_guest
 
 	if [ "$GUEST_NEED_DNS" = "yes" ]
@@ -446,7 +409,6 @@ load_iptables () {
 remove_iptables () {
 
         disable_outside_port_forwarding
-	disable_inside_port_forwarding
 	disable_ping_to_guest
 
 	if [ "$GUEST_NEED_DNS" = "yes" ]
