@@ -1,4 +1,0 @@
-#!/bin/sh
-. /etc/default/kvm-manager
-. $KVM_MANAGER_ROOT/share/common.sh
-disable_any_host_connections

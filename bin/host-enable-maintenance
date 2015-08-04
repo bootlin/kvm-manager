@@ -1,4 +1,0 @@
-#!/bin/sh
-. /etc/default/kvm-manager
-. $KVM_MANAGER_ROOT/share/common.sh
-enable_any_host_connections

@@ -238,16 +238,6 @@ disable_guest_ping () {
         guest_ping D
 }
 
-# Enable / disable host outgoing connections #################################
-
-enable_any_host_connections () {
-	$IPT -A OUTPUT -m state --state NEW -j ACCEPT
-}
-
-disable_any_host_connections () {
-	$IPT -D OUTPUT -m state --state NEW -j ACCEPT
-}
-
 # Check guest running status ####################################
 
 check_guest_status () {
