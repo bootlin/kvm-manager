@@ -132,7 +132,6 @@ open_guest_ports () {
 guest_dns () {
 	ACTION=$1
 	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p udp --dport 53 -m state --state NEW -j ACCEPT
-	$IPT -$ACTION INPUT -s $GUEST_IP -d $GUEST_GW -p tcp --dport 53 -m state --state NEW -j ACCEPT
 }
 
 enable_guest_dns () {
