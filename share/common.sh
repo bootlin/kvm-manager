@@ -72,7 +72,7 @@ launch_kvm () {
 	if [ -e "$GUEST_EXTRADISK" ]
 	then
         	check_volume_not_mounted $GUEST_EXTRADISK
-		extradisks="-drive file=$GUEST_EXTRADISK,cache=none,if=virtio"
+		extradisks="-drive file=$GUEST_EXTRADISK,cache=none,if=virtio,format=raw"
 	fi
 
 	# Sync disks
@@ -83,7 +83,7 @@ launch_kvm () {
 
 	# Start VM
 
-	nice -$GUEST_PRIO /usr/bin/qemu-start -u kvm-$GUEST_NAME -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -drive file=$GUEST_BOOT,cache=none,if=virtio -drive file=$GUEST_ROOT,cache=none,if=virtio -drive file=$GUEST_DATA,cache=none,if=virtio $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -parallel null -display none -vga none -daemonize -name $GUEST_NAME
+	nice -$GUEST_PRIO /usr/bin/qemu-start -u kvm-$GUEST_NAME -t $GUEST_NR -m $GUEST_MAC -n virtio -- -cpu host -smp $GUEST_CPUS -drive file=$GUEST_BOOT,cache=none,if=virtio,format=raw -drive file=$GUEST_ROOT,cache=none,if=virtio,format=raw -drive file=$GUEST_DATA,cache=none,if=virtio,format=raw $extradisks -m $GUEST_RAM -monitor tcp::$GUEST_MONITOR_PORT,server,nowait -serial file:$GUEST_CONSOLE -parallel null -display none -vga none -daemonize -name $GUEST_NAME
 }
 
 # Shutdown guest ################################################
