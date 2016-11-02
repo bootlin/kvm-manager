@@ -29,14 +29,29 @@ AWK=/usr/bin/awk
 DD=/bin/dd
 MKFS=/sbin/mkfs.ext4
 MKSWAP=/sbin/mkswap
+IFCONFIG=/sbin/ifconfig
 
 GUEST_DEFS=/etc/kvm-manager/guests
 KVM_MANAGER=$KVM_MANAGER_ROOT/bin/kvm-manager
-
-EXTIP=`/sbin/ifconfig $EXTIF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
-GUEST_PUBLIC_IP=`/sbin/ifconfig $GUEST_PUBLIC_IF | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
 LVMLOG=$LOGPATH/lvm.log
 MNT=/mnt/snapshots
+
+EXTIP=`get_ip $EXTIF`
+GUEST_PUBLIC_IP=`get_ip $GUEST_PUBLIC_IF`
+
+# Get interface ip address ######################################
+
+get_ip () {
+	ip=`$IFCONFIG $1 | $SED -n 's/.*inet *addr:\([0-9\.]*\).*/\1/p'`
+	
+	if [ "$ip" = "" ]
+	then
+		echo "No IP address for interface $1. Network issue or failing line in /etc/network/interfaces?"
+		exit 1
+	fi
+
+	echo $ip
+}
 
 # Create and setup the guest tap interface ######################
 
