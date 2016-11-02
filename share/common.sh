@@ -36,9 +36,6 @@ KVM_MANAGER=$KVM_MANAGER_ROOT/bin/kvm-manager
 LVMLOG=$LOGPATH/lvm.log
 MNT=/mnt/snapshots
 
-EXTIP=`get_ip $EXTIF`
-GUEST_PUBLIC_IP=`get_ip $GUEST_PUBLIC_IF`
-
 # Get interface ip address ######################################
 
 get_ip () {
@@ -46,12 +43,17 @@ get_ip () {
 	
 	if [ "$ip" = "" ]
 	then
-		echo "No IP address for interface $1. Network issue or failing line in /etc/network/interfaces?"
+		log_failure_msg "No IP address for interface $1. Network issue or failing line in /etc/network/interfaces?"
 		exit 1
 	fi
 
 	echo $ip
 }
+
+# Further inits
+
+EXTIP=`get_ip $EXTIF`
+GUEST_PUBLIC_IP=`get_ip $GUEST_PUBLIC_IF`
 
 # Create and setup the guest tap interface ######################
 
