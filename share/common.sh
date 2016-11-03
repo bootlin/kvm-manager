@@ -2,6 +2,7 @@
 
 # CAUTION: these utilities require the 'bc' command
 
+. /lib/lsb/init-functions
 . /etc/default/kvm-manager
 
 GPG=/usr/bin/gpg
