@@ -115,6 +115,9 @@ shutdown_guest () {
 		# Guest answers to ping
 		# Send it shutdown keys
 
+		# Command compatible with Ubuntu 14.04 and earlier, ignored in 16.04 and later
+		echo "sendkey ctrl-alt-delete" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
+		# Command compatible with Ubuntu 16.04 and later (systemd)
 		echo "system_powerdown" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 	fi
 }
