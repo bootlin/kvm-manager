@@ -522,7 +522,11 @@ snapshot_create () {
 
 	mountpoints=""
 	__snapshot_create $GUEST_ROOT
-	__snapshot_create $GUEST_DATA
+
+        if [ "$GUEST_BACKUP_DATADISK" != "no" ]
+	then
+		__snapshot_create $GUEST_DATA
+	fi
 
 	# Mounting the boot partition
 
@@ -541,7 +545,11 @@ snapshot_remove () {
 
 	__snapshot_remove $GUEST_BOOT
 	__snapshot_remove $GUEST_ROOT
-	__snapshot_remove $GUEST_DATA
+
+        if [ "$GUEST_BACKUP_DATADISK" != "no" ]
+	then
+		__snapshot_remove $GUEST_DATA
+	fi
 
         if [ -e "$GUEST_EXTRADISK" -a "$GUEST_BACKUP_EXTRADISK" = "yes" ]
         then
