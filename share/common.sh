@@ -115,7 +115,7 @@ shutdown_guest () {
 		# Guest answers to ping
 		# Send it shutdown keys
 
-		echo "sendkey ctrl-alt-delete" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
+		echo "sendkey system_powerdown" | /bin/nc 127.0.0.1 $GUEST_MONITOR_PORT > /dev/null
 	fi
 }
 
