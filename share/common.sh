@@ -327,14 +327,14 @@ stop () {
                 exit 1
         fi
 
-	# If kvm is still alive after 60 s
+	# If kvm is still alive after 20 s
         # (guest OS didn't complete shutdown, or isn't responding to ping),
         # quit the emulator
 
 	count=0
 	stopped=0
 
-	while [ "$count" -lt 60 ]
+	while [ "$count" -lt 20 ]
 	do
 		check_guest_status
         	if [ $STATUS ]
