@@ -178,21 +178,6 @@ disable_connection_to_proxy () {
 	__connection_to_proxy D
 }
 
-# ENABLES SMTP ACCESS ##########################################################
-
-__guest_smtp () {
-	ACTION=$1
-	$IPT -$ACTION FORWARD -p tcp -s $GUEST_IP -d $SMTP_IP -m multiport --dport 25,587 -m state --state NEW -j ACCEPT
-}
-
-enable_guest_smtp () {
-	__guest_smtp A
-}
-
-disable_guest_smtp () {
-	__guest_smtp D
-}
-
 # Enable / disable nat and port forwarding from the outside to the inside #######
 
 __outside_port_forwarding () {
@@ -394,11 +379,6 @@ load_iptables () {
 		enable_guest_ping
 	fi
 
-	if [ "$GUEST_NEED_SMTP" = "yes" ]
-	then
-		enable_guest_smtp
-	fi
-
 	if [ "$GUEST_BEHIND_HTTP_PROXY" = "yes" ]
 	then
 		enable_connection_to_proxy
@@ -416,11 +396,6 @@ remove_iptables () {
 	if [ "$GUEST_NEED_PING" = "yes" ]
 	then
 		disable_guest_ping
-	fi
-
-	if [ "$GUEST_NEED_SMTP" = "yes" ]
-	then
-		disable_guest_smtp
 	fi
 
 	if [ "$GUEST_BEHIND_HTTP_PROXY" = "yes" ]
