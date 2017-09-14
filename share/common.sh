@@ -553,7 +553,7 @@ rc_main () {
                 		stop
                 		start
 			else
-				echo "INFO: skipping the $1 VM which is marked as not restartable. Stop and start it if needed."
+				log_warning_msg "INFO: NOT restarting the kvm $1 virtual machine (marked as not restartable)"
 			fi
                 	;;
 
