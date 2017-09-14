@@ -540,9 +540,9 @@ snapshot_remove () {
 # Main code for RC scripts ####################################################
 
 rc_main () {
-	case "$1" in
+	case "$2" in
         	start|stop|status)
-                	$1
+                	$2
                 	;;
 		reload-iptables)
 			load_iptables
@@ -552,11 +552,13 @@ rc_main () {
 			then
                 		stop
                 		start
+			else
+				echo "INFO: skipping the $1 VM which is marked as not restartable. Stop and start it if needed."
 			fi
                 	;;
 
         	info)
-			guest_info $2
+			guest_info $3
 			;;
         	*)
                 	echo "Usage: /etc/init.d/kvm-www {start|stop|restart|status|reload-iptables|info}"

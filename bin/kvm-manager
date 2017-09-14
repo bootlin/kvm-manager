@@ -21,4 +21,4 @@ fi
 
 . $KVM_MANAGER_ROOT/share/common.sh
 
-rc_main $2 $3
+rc_main $1 $2 $3
