@@ -405,7 +405,7 @@ remove_iptables () {
 }
 
 # RC script: get guest information ##############################
-# (Value of a specified shell variable
+# (Value of a specified shell variable)
 
 guest_info () {
 
@@ -548,8 +548,11 @@ rc_main () {
 			load_iptables
 			;;
         	restart)
-                	stop
-                	start
+		 	if [ "$GUEST_RESTARTABLE" != "no" ]	
+			then
+                		stop
+                		start
+			fi
                 	;;
 
         	info)
