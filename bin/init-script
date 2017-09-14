@@ -60,8 +60,7 @@ case "$1" in
 	# and starting them all again then
 	for m in $ENABLED_MACHINES
 	do
-		$KVM_MANAGER $m stop
-		$KVM_MANAGER $m start
+		$KVM_MANAGER $m restart
 	done
 	exit 0
 	;;
